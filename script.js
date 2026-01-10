@@ -5,19 +5,39 @@
 // ==================== //
 // LOADING SCREEN
 // ==================== //
+
+// Track when page started loading
+const pageLoadStart = Date.now();
+
+// Minimum time to show loading screen (in milliseconds)
+const MIN_LOADING_TIME = 4000; // 4 seconds
+
 window.addEventListener('load', () => {
-    // Add a minimum display time for the loading screen (5 seconds to see full animation)
+    const loadingScreen = document.querySelector('.loading-screen');
+
+    // Calculate how long the page took to load
+    const loadTime = Date.now() - pageLoadStart;
+
+    // Calculate remaining time to show loading screen
+    const remainingTime = Math.max(MIN_LOADING_TIME - loadTime, 0);
+
+    console.log('Page loaded in', loadTime, 'ms');
+    console.log('Showing loading screen for additional', remainingTime, 'ms');
+
+    // Wait for remaining time, then fade out
     setTimeout(() => {
+        console.log('Starting fade out');
         document.body.classList.add('loaded');
+        document.body.style.overflow = ''; // Re-enable scrolling
 
         // Remove loading screen from DOM after transition completes
         setTimeout(() => {
-            const loadingScreen = document.querySelector('.loading-screen');
             if (loadingScreen) {
                 loadingScreen.remove();
+                console.log('Loading screen removed');
             }
-        }, 1000); // Match the CSS transition duration
-    }, 5000); // Minimum display time - 5 seconds for full money printing cycles
+        }, 1000);
+    }, remainingTime);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
