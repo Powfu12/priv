@@ -65,7 +65,7 @@ body.loaded .loading-screen {
     z-index: 10000;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+    transition: opacity 1s ease, visibility 1s ease;
 }
 
 .loading-screen::before {

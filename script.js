@@ -6,7 +6,7 @@
 // LOADING SCREEN
 // ==================== //
 window.addEventListener('load', () => {
-    // Add a minimum display time for the loading screen (3 seconds for better visibility)
+    // Add a minimum display time for the loading screen (5 seconds to see full animation)
     setTimeout(() => {
         document.body.classList.add('loaded');
 
@@ -16,8 +16,8 @@ window.addEventListener('load', () => {
             if (loadingScreen) {
                 loadingScreen.remove();
             }
-        }, 800); // Match the CSS transition duration
-    }, 3000); // Minimum display time - increased for visibility
+        }, 1000); // Match the CSS transition duration
+    }, 5000); // Minimum display time - 5 seconds for full money printing cycles
 });
 
 document.addEventListener('DOMContentLoaded', () => {
