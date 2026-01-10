@@ -39,6 +39,306 @@ body {
     background-attachment: fixed;
 }
 
+body.loaded .loading-screen {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ==================== */
+/* LOADING SCREEN */
+/* ==================== */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #000000 0%, #0a0a1a 50%, #000000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent);
+    background-size: 200% 200%;
+    animation: stars-float 20s ease-in-out infinite;
+    opacity: 0.3;
+}
+
+.loading-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
+
+.loading-logo {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+/* Money Printer Animation */
+.money-printer {
+    position: relative;
+    width: 200px;
+    height: 150px;
+    animation: fadeIn 1s ease-out 0.3s both;
+}
+
+.printer-body {
+    width: 180px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--gray-medium), var(--gray-dark));
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 40px rgba(0, 102, 255, 0.3);
+}
+
+.printer-slot {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--primary-blue), #0052cc);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.printer-light {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    background: var(--accent-gold);
+    border-radius: 50%;
+    animation: printer-blink 1.5s ease-in-out infinite;
+    box-shadow: 0 0 20px var(--accent-gold);
+}
+
+@keyframes printer-blink {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 20px var(--accent-gold);
+    }
+    50% {
+        opacity: 0.3;
+        box-shadow: 0 0 5px var(--accent-gold);
+    }
+}
+
+.money-bills {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+}
+
+.bill {
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #ffaa00 100%);
+    border: 2px solid #d4af37;
+    border-radius: 5px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+}
+
+.bill-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.bill-content::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.bill-symbol {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--primary-black);
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    z-index: 1;
+}
+
+.bill-1 {
+    animation: print-money 2.5s ease-in-out infinite;
+}
+
+.bill-2 {
+    animation: print-money 2.5s ease-in-out 0.4s infinite;
+}
+
+.bill-3 {
+    animation: print-money 2.5s ease-in-out 0.8s infinite;
+}
+
+@keyframes print-money {
+    0% {
+        opacity: 0;
+        top: -10px;
+        transform: translateX(-50%) scale(0.8);
+    }
+    20% {
+        opacity: 1;
+        top: 0;
+        transform: translateX(-50%) scale(1);
+    }
+    40% {
+        opacity: 1;
+        top: 30px;
+        transform: translateX(-50%) scale(1) rotate(0deg);
+    }
+    60% {
+        opacity: 0.8;
+        top: 60px;
+        transform: translateX(-50%) scale(1.05) rotate(-5deg);
+    }
+    80% {
+        opacity: 0.3;
+        top: 90px;
+        transform: translateX(-50%) scale(1.1) rotate(-10deg);
+    }
+    100% {
+        opacity: 0;
+        top: 120px;
+        transform: translateX(-50%) scale(1.2) rotate(-15deg);
+    }
+}
+
+/* Loading Text */
+.loading-text {
+    animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+.loading-text h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary-white) 0%, var(--primary-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+}
+
+.loading-bar {
+    width: 250px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-blue), var(--accent-gold), var(--primary-blue));
+    background-size: 200% 100%;
+    border-radius: 10px;
+    animation: loading-progress 2s ease-in-out infinite;
+    box-shadow: 0 0 15px var(--primary-blue);
+}
+
+@keyframes loading-progress {
+    0% {
+        width: 0%;
+        background-position: 0% 50%;
+    }
+    50% {
+        width: 70%;
+        background-position: 100% 50%;
+    }
+    100% {
+        width: 100%;
+        background-position: 200% 50%;
+    }
+}
+
+/* Responsive Loading Screen */
+@media (max-width: 768px) {
+    .loading-logo {
+        font-size: 2rem;
+    }
+
+    .money-printer {
+        width: 150px;
+        height: 120px;
+    }
+
+    .printer-body {
+        width: 140px;
+        height: 80px;
+    }
+
+    .printer-slot {
+        width: 90px;
+        height: 15px;
+    }
+
+    .bill {
+        width: 80px;
+        height: 40px;
+    }
+
+    .bill-symbol {
+        font-size: 1.5rem;
+    }
+
+    .loading-text h3 {
+        font-size: 1.2rem;
+    }
+
+    .loading-bar {
+        width: 200px;
+    }
+}
+
 /* ==================== */
 /* NAVIGATION */
 /* ==================== */

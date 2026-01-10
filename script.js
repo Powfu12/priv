@@ -2,6 +2,24 @@
 // PRIMEURO - Main JavaScript
 // ==================== //
 
+// ==================== //
+// LOADING SCREEN
+// ==================== //
+window.addEventListener('load', () => {
+    // Add a minimum display time for the loading screen (1.5 seconds)
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+
+        // Remove loading screen from DOM after transition completes
+        setTimeout(() => {
+            const loadingScreen = document.querySelector('.loading-screen');
+            if (loadingScreen) {
+                loadingScreen.remove();
+            }
+        }, 500); // Match the CSS transition duration
+    }, 1500); // Minimum display time
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all features
     initNavbar();
