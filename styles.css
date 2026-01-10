@@ -32,6 +32,11 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    background-image:
+        linear-gradient(rgba(0, 102, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 102, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-attachment: fixed;
 }
 
 /* ==================== */
@@ -300,6 +305,7 @@ body {
     justify-content: center;
     margin-bottom: 4rem;
     animation: fadeInUp 1s ease-out 0.6s both;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -335,6 +341,18 @@ body {
     background: var(--primary-white);
     color: var(--primary-black);
     transform: translateY(-3px);
+}
+
+.btn-tertiary {
+    background: linear-gradient(135deg, var(--accent-gold), #ffaa00);
+    color: var(--primary-black);
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+}
+
+.btn-tertiary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-secondary);
 }
 
 .hero-stats {
@@ -467,6 +485,16 @@ section {
     background: linear-gradient(90deg, transparent, var(--primary-blue), transparent);
 }
 
+.how-we-work::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary-blue), transparent);
+}
+
 .steps-container {
     display: flex;
     flex-direction: column;
@@ -548,35 +576,37 @@ section {
 
 .carousel-container {
     position: relative;
-    max-width: 1000px;
+    max-width: 100%;
     margin: 0 auto;
-    overflow: hidden;
     padding: 2rem 0;
 }
 
 .carousel {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .carousel-track {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .service-card {
-    min-width: 100%;
     background: linear-gradient(135deg, var(--gray-medium) 0%, var(--gray-dark) 100%);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 3rem;
+    padding: 2.5rem;
     position: relative;
     transition: all var(--transition-speed);
+    display: flex;
+    flex-direction: column;
 }
 
 .service-card:hover {
     border-color: var(--primary-blue);
     box-shadow: var(--shadow-primary);
-    transform: translateY(-5px);
+    transform: translateY(-10px);
 }
 
 .service-badge {
@@ -587,10 +617,21 @@ section {
     color: var(--primary-white);
     padding: 0.5rem 1rem;
     border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+    animation: badge-pulse 3s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(0, 102, 255, 0.6);
+    }
 }
 
 .service-icon {
@@ -628,13 +669,17 @@ section {
 .service-features {
     list-style: none;
     margin-bottom: 2rem;
+    flex-grow: 1;
 }
 
 .service-features li {
     color: var(--text-secondary);
     padding: 0.75rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 1rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .service-features li:last-child {
@@ -694,7 +739,7 @@ section {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     transition: all var(--transition-speed);
@@ -722,7 +767,7 @@ section {
 }
 
 .carousel-indicators {
-    display: flex;
+    display: none;
     justify-content: center;
     gap: 1rem;
     margin-top: 2rem;
@@ -970,17 +1015,62 @@ section {
 /* ==================== */
 /* RESPONSIVE DESIGN */
 /* ==================== */
+@media (max-width: 1200px) {
+    .carousel-track {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .carousel-container {
+        overflow: hidden;
+    }
+
+    .carousel {
+        overflow: hidden;
+    }
+}
+
 @media (max-width: 1024px) {
+    .carousel-track {
+        display: flex;
+        grid-template-columns: none;
+        gap: 0;
+    }
+
+    .service-card {
+        min-width: 100%;
+        flex-shrink: 0;
+    }
+
+    .carousel-btn {
+        display: flex;
+    }
+
     .carousel-btn-prev {
-        left: -15px;
+        left: 10px;
     }
 
     .carousel-btn-next {
-        right: -15px;
+        right: 10px;
+    }
+
+    .carousel-indicators {
+        display: flex;
     }
 }
 
 @media (max-width: 768px) {
+    .carousel-track {
+        display: flex;
+        grid-template-columns: none;
+        gap: 0;
+    }
+
+    .service-card {
+        min-width: 100%;
+        flex-shrink: 0;
+    }
+
     .mobile-menu-toggle {
         display: flex;
     }
@@ -1020,8 +1110,14 @@ section {
     }
 
     .hero-buttons {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.9rem;
     }
 
     .hero-stats {
@@ -1095,9 +1191,16 @@ section {
         font-size: 1.5rem;
     }
 
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
     .btn {
         padding: 0.875rem 2rem;
         font-size: 0.95rem;
+        width: 100%;
+        text-align: center;
     }
 
     .stat-number {

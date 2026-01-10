@@ -86,9 +86,27 @@ function initCarousel() {
 
     let currentIndex = 0;
     const totalSlides = slides.length;
+    let isCarouselMode = false;
+
+    // Check if carousel mode should be active based on screen size
+    function checkCarouselMode() {
+        const wasCarouselMode = isCarouselMode;
+        isCarouselMode = window.innerWidth <= 1024;
+
+        if (isCarouselMode && !wasCarouselMode) {
+            // Switched to carousel mode
+            updateCarousel();
+        } else if (!isCarouselMode && wasCarouselMode) {
+            // Switched to grid mode - reset transform
+            track.style.transform = 'translateX(0)';
+            currentIndex = 0;
+        }
+    }
 
     // Function to update carousel position
     function updateCarousel() {
+        if (!isCarouselMode) return;
+
         const offset = -currentIndex * 100;
         track.style.transform = `translateX(${offset}%)`;
 
@@ -102,14 +120,20 @@ function initCarousel() {
         });
     }
 
+    // Initialize carousel mode check
+    checkCarouselMode();
+    window.addEventListener('resize', debounce(checkCarouselMode, 250));
+
     // Next slide
     function nextSlide() {
+        if (!isCarouselMode) return;
         currentIndex = (currentIndex + 1) % totalSlides;
         updateCarousel();
     }
 
     // Previous slide
     function prevSlide() {
+        if (!isCarouselMode) return;
         currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
         updateCarousel();
     }
