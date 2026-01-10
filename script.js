@@ -6,7 +6,7 @@
 // LOADING SCREEN
 // ==================== //
 window.addEventListener('load', () => {
-    // Add a minimum display time for the loading screen (1.5 seconds)
+    // Add a minimum display time for the loading screen (3 seconds for better visibility)
     setTimeout(() => {
         document.body.classList.add('loaded');
 
@@ -16,8 +16,8 @@ window.addEventListener('load', () => {
             if (loadingScreen) {
                 loadingScreen.remove();
             }
-        }, 500); // Match the CSS transition duration
-    }, 1500); // Minimum display time
+        }, 800); // Match the CSS transition duration
+    }, 3000); // Minimum display time - increased for visibility
 });
 
 document.addEventListener('DOMContentLoaded', () => {
