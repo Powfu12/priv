@@ -873,24 +873,31 @@ section {
 
 .steps-container {
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    max-width: 900px;
+    flex-direction: row;
+    gap: 1.5rem;
+    max-width: 100%;
     margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .step {
     background: linear-gradient(135deg, var(--gray-medium) 0%, var(--gray-dark) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 2.5rem;
+    padding: 2rem 1.5rem;
     display: flex;
-    gap: 2rem;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
     transition: all var(--transition-speed);
     opacity: 0;
-    transform: translateX(-50px);
-    animation: slideInRight 0.6s ease-out forwards;
+    transform: translateY(-30px);
+    animation: slideInDown 0.6s ease-out forwards;
+    flex: 1 1 180px;
+    max-width: 220px;
+    min-width: 180px;
 }
 
 .step:nth-child(1) { animation-delay: 0.1s; }
@@ -899,25 +906,25 @@ section {
 .step:nth-child(4) { animation-delay: 0.4s; }
 .step:nth-child(5) { animation-delay: 0.5s; }
 
-@keyframes slideInRight {
+@keyframes slideInDown {
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
     }
 }
 
 .step:hover {
-    transform: translateX(10px);
+    transform: translateY(-5px);
     border-color: var(--primary-blue);
     box-shadow: 0 10px 40px rgba(0, 102, 255, 0.2);
 }
 
 .step-icon {
     flex-shrink: 0;
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     background: linear-gradient(135deg, var(--primary-blue), #0052cc);
-    border-radius: 15px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -925,21 +932,26 @@ section {
 }
 
 .step-icon svg {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     color: var(--primary-white);
 }
 
+.step-content {
+    width: 100%;
+}
+
 .step-content h3 {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     color: var(--primary-white);
 }
 
 .step-content p {
     color: var(--text-secondary);
-    line-height: 1.8;
+    line-height: 1.6;
+    font-size: 0.85rem;
 }
 
 /* ==================== */
@@ -1403,43 +1415,43 @@ section {
 
 @media (max-width: 1024px) {
     .carousel-track {
-        display: flex;
-        grid-template-columns: none;
-        gap: 0;
+        grid-template-columns: 1fr;
+        gap: 2rem;
     }
 
     .service-card {
-        min-width: 100%;
-        flex-shrink: 0;
+        min-width: auto;
+        flex-shrink: 1;
     }
 
     .carousel-btn {
-        display: flex;
-    }
-
-    .carousel-btn-prev {
-        left: 10px;
-    }
-
-    .carousel-btn-next {
-        right: 10px;
+        display: none;
     }
 
     .carousel-indicators {
-        display: flex;
+        display: none;
+    }
+
+    /* Make How We Work vertical on mobile */
+    .steps-container {
+        flex-direction: column;
+    }
+
+    .step {
+        max-width: 100%;
+        flex: 1 1 auto;
     }
 }
 
 @media (max-width: 768px) {
     .carousel-track {
-        display: flex;
-        grid-template-columns: none;
-        gap: 0;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     .service-card {
-        min-width: 100%;
-        flex-shrink: 0;
+        min-width: auto;
+        flex-shrink: 1;
         padding: 1.5rem;
     }
 
