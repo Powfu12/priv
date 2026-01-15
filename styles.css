@@ -545,6 +545,7 @@ body.loaded .loading-screen {
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, #000000 0%, #0a0a1a 50%, #000000 100%);
+    pointer-events: none;
 }
 
 .stars {
@@ -560,6 +561,7 @@ body.loaded .loading-screen {
     background-size: 200% 200%;
     animation: stars-float 20s ease-in-out infinite;
     opacity: 0.5;
+    pointer-events: none;
 }
 
 @keyframes stars-float {
@@ -575,6 +577,7 @@ body.loaded .loading-screen {
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .hero-content {
