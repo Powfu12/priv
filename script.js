@@ -10,7 +10,7 @@
 const pageLoadStart = Date.now();
 
 // Minimum time to show loading screen (in milliseconds)
-const MIN_LOADING_TIME = 4000; // 4 seconds
+const MIN_LOADING_TIME = 2000; // 2 seconds
 
 window.addEventListener('load', () => {
     const loadingScreen = document.querySelector('.loading-screen');

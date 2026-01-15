@@ -90,7 +90,7 @@
                 </div>
                 <!-- Hero Image - Replace src with your image URL -->
                 <div class="hero-image-container">
-                    <img src="hero-image.jpg" alt="PRIMEURO Gaming Services" class="hero-image" onerror="this.style.display='none'">
+                    <img src="hero-image.png" alt="PRIMEURO Gaming Services" class="hero-image" onerror="this.parentElement.style.display='none'">
                 </div>
                 <h1 class="hero-title">Your Premier In-Game Service Provider</h1>
                 <p class="hero-description">
@@ -118,12 +118,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="scroll-indicator">
-            <div class="mouse">
-                <div class="wheel"></div>
-            </div>
-            <p>Scroll Down</p>
         </div>
     </section>
 
@@ -211,86 +205,67 @@
                         <!-- Service 1 -->
                         <div class="service-card">
                             <div class="service-badge">Most Popular</div>
-                            <!-- Service Image - Replace src with your product image -->
                             <div class="service-image-container">
-                                <img src="service-currency.jpg" alt="Premium Currency" class="service-image" onerror="this.parentElement.style.display='none'">
+                                <img src="10up.jpg" alt="10 Million Package" class="service-image" onerror="this.parentElement.style.display='none'">
                             </div>
-                            <div class="service-icon">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <h3 class="service-title">10 Million Package</h3>
+                            <p class="service-description">Perfect starter pack for new players.</p>
+                            <div class="service-includes">
+                                <p class="includes-title">What you get:</p>
+                                <ul class="includes-list">
+                                    <li>10,000,000 in-game currency</li>
+                                    <li>Instant delivery</li>
+                                    <li>24/7 support</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Premium Currency</h3>
-                            <p class="service-description">Get instant access to premium in-game currency. Fast, secure, and competitively priced. Perfect for unlocking exclusive content and accelerating your gaming progress.</p>
-                            <ul class="service-features">
-                                <li>✓ Instant delivery within 5-15 minutes</li>
-                                <li>✓ 100% secure transaction process</li>
-                                <li>✓ Competitive pricing with bulk discounts</li>
-                                <li>✓ 24/7 customer support</li>
-                                <li>✓ Money-back guarantee</li>
-                            </ul>
                             <div class="service-pricing">
-                                <span class="price-from">Starting from</span>
-                                <span class="price-amount">$9.99</span>
+                                <span class="price-amount">€24.99</span>
                             </div>
-                            <a href="#contact" class="btn btn-service">Order Now</a>
+                            <a href="product-10m.html" class="btn btn-service">View Details</a>
                         </div>
 
                         <!-- Service 2 -->
                         <div class="service-card">
-                            <div class="service-badge">New Release</div>
-                            <!-- Service Image - Replace src with your product image -->
+                            <div class="service-badge">Best Value</div>
                             <div class="service-image-container">
-                                <img src="service-items.jpg" alt="Exclusive Items" class="service-image" onerror="this.parentElement.style.display='none'">
+                                <img src="20up.jpg" alt="20 Million Package" class="service-image" onerror="this.parentElement.style.display='none'">
                             </div>
-                            <div class="service-icon">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M19.4 15C19.1277 15.6171 19.0208 16.2962 19.0903 16.9689C19.1598 17.6416 19.4035 18.2843 19.8 18.83L20.3 19.5C20.5608 19.8783 20.7169 20.3186 20.7519 20.7765C20.787 21.2345 20.6997 21.6941 20.499 22.1069C20.2983 22.5198 19.9916 22.8707 19.6111 23.1223C19.2306 23.3738 18.7898 23.5169 18.3391 23.5366H17.56C16.9328 23.5366 16.3313 23.7856 15.8876 24.2293C15.4439 24.673 15.1949 25.2745 15.1949 25.9017V26.82C15.1949 27.7073 14.8425 28.5583 14.2145 29.1862C13.5866 29.8142 12.7356 30.1666 11.8483 30.1666C10.961 30.1666 10.11 29.8142 9.48209 29.1862C8.85413 28.5583 8.50171 27.7073 8.50171 26.82V26.3C8.46588 25.6262 8.19328 24.9872 7.73291 24.4942C7.27254 24.0012 6.65344 23.6844 5.98 23.6L5.3 23.5C4.41274 23.5 3.56176 23.1476 2.93381 22.5196C2.30585 21.8916 1.95343 21.0407 1.95343 20.1533C1.95343 19.2661 2.30585 18.4151 2.93381 17.7871C3.56176 17.1591 4.41274 16.8067 5.3 16.8067H6C6.62726 16.8067 7.22876 16.5577 7.67247 16.114C8.11618 15.6703 8.36517 15.0688 8.36517 14.4415C8.36517 13.8143 8.11618 13.2128 7.67247 12.7691C7.22876 12.3254 6.62726 12.0764 6 12.0764H5.3C4.41274 12.0764 3.56176 11.724 2.93381 11.096C2.30585 10.4681 1.95343 9.61709 1.95343 8.72983C1.95343 7.84257 2.30585 6.99159 2.93381 6.36363C3.56176 5.73568 4.41274 5.38326 5.3 5.38326H6C6.68761 5.29879 7.32651 4.98202 7.81954 4.48899C8.31257 3.99596 8.62933 3.35706 8.71381 2.66945V2C8.71381 1.11274 9.06623 0.261765 9.69418 -0.366188C10.3221 -0.994141 11.1731 -1.34656 12.0604 -1.34656C12.9476 -1.34656 13.7986 -0.994141 14.4266 -0.366188C15.0545 0.261765 15.4069 1.11274 15.4069 2V2.7C15.4914 3.38761 15.8082 4.02651 16.3012 4.51954C16.7942 5.01257 17.4331 5.32933 18.1207 5.41381H19C19.8873 5.41381 20.7382 5.76623 21.3662 6.39418C21.9941 7.02213 22.3466 7.87312 22.3466 8.76037C22.3466 9.64763 21.9941 10.4986 21.3662 11.1266C20.7382 11.7545 19.8873 12.1069 19 12.1069H18.3C17.6728 12.1069 17.0713 12.3559 16.6276 12.7996C16.1839 13.2433 15.9349 13.8448 15.9349 14.4721C15.9349 15.0993 16.1839 15.7008 16.6276 16.1445C17.0713 16.5882 17.6728 16.8372 18.3 16.8372H19C19.4122 16.8372 19.8204 16.9184 20.2023 17.0763C20.5842 17.2343 20.9326 17.4661 21.2278 17.7586C21.5229 18.0511 21.7592 18.3987 21.9222 18.7802C22.0851 19.1617 22.1714 19.5698 22.1762 19.9821C22.181 20.3944 22.1042 20.8043 21.9499 21.1893C21.7957 21.5743 21.5668 21.9274 21.2777 22.2283C20.9886 22.5292 20.6448 22.7719 20.2663 22.9431C19.8878 23.1143 19.4816 23.2108 19.07 23.2275H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <h3 class="service-title">20 Million Package</h3>
+                            <p class="service-description">Most popular choice for serious players.</p>
+                            <div class="service-includes">
+                                <p class="includes-title">What you get:</p>
+                                <ul class="includes-list">
+                                    <li>20,000,000 in-game currency</li>
+                                    <li>Priority delivery</li>
+                                    <li>VIP support</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Exclusive Items</h3>
-                            <p class="service-description">Access rare and exclusive in-game items that give you the competitive edge. From legendary weapons to unique cosmetics, we have it all.</p>
-                            <ul class="service-features">
-                                <li>✓ Rare and legendary item collection</li>
-                                <li>✓ Verified authenticity guarantee</li>
-                                <li>✓ Safe account handling protocols</li>
-                                <li>✓ Customized item requests available</li>
-                                <li>✓ Priority support for premium orders</li>
-                            </ul>
                             <div class="service-pricing">
-                                <span class="price-from">Starting from</span>
-                                <span class="price-amount">$24.99</span>
+                                <span class="price-amount">€44.99</span>
                             </div>
-                            <a href="#contact" class="btn btn-service">Order Now</a>
+                            <a href="product-20m.html" class="btn btn-service">View Details</a>
                         </div>
 
                         <!-- Service 3 -->
                         <div class="service-card">
-                            <div class="service-badge">Pro Service</div>
-                            <!-- Service Image - Replace src with your product image -->
+                            <div class="service-badge">Premium</div>
                             <div class="service-image-container">
-                                <img src="service-boosting.jpg" alt="Boosting Services" class="service-image" onerror="this.parentElement.style.display='none'">
+                                <img src="50up.jpg" alt="50 Million Package" class="service-image" onerror="this.parentElement.style.display='none'">
                             </div>
-                            <div class="service-icon">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 8H19C19.5304 8 20.0391 8.21071 20.4142 8.58579C20.7893 8.96086 21 9.46957 21 10V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V10C3 9.46957 3.21071 8.96086 3.58579 8.58579C3.96086 8.21071 4.46957 8 5 8H6M7 8V6C7 4.93913 7.42143 3.92172 8.17157 3.17157C8.92172 2.42143 9.93913 2 11 2H13C14.0609 2 15.0783 2.42143 15.8284 3.17157C16.5786 3.92172 17 4.93913 17 6V8M7 8H17M12 12V18M9 15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <h3 class="service-title">50 Million Package</h3>
+                            <p class="service-description">Ultimate package for elite players.</p>
+                            <div class="service-includes">
+                                <p class="includes-title">What you get:</p>
+                                <ul class="includes-list">
+                                    <li>50,000,000 in-game currency</li>
+                                    <li>Express delivery</li>
+                                    <li>Premium VIP support</li>
+                                </ul>
                             </div>
-                            <h3 class="service-title">Boosting Services</h3>
-                            <p class="service-description">Professional account boosting and progression services. Reach your desired rank or level with our expert team while maintaining complete account security.</p>
-                            <ul class="service-features">
-                                <li>✓ Professional experienced boosters</li>
-                                <li>✓ Rank and level progression tracking</li>
-                                <li>✓ VPN protection for your account</li>
-                                <li>✓ Flexible scheduling options</li>
-                                <li>✓ Achievement and milestone completion</li>
-                            </ul>
                             <div class="service-pricing">
-                                <span class="price-from">Starting from</span>
-                                <span class="price-amount">$49.99</span>
+                                <span class="price-amount">€99.99</span>
                             </div>
-                            <a href="#contact" class="btn btn-service">Order Now</a>
+                            <a href="product-50m.html" class="btn btn-service">View Details</a>
                         </div>
                     </div>
                 </div>
