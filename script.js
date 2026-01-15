@@ -2,6 +2,44 @@
 // PRIMEURO - Main JavaScript
 // ==================== //
 
+// ==================== //
+// LOADING SCREEN
+// ==================== //
+
+// Track when page started loading
+const pageLoadStart = Date.now();
+
+// Minimum time to show loading screen (in milliseconds)
+const MIN_LOADING_TIME = 4000; // 4 seconds
+
+window.addEventListener('load', () => {
+    const loadingScreen = document.querySelector('.loading-screen');
+
+    // Calculate how long the page took to load
+    const loadTime = Date.now() - pageLoadStart;
+
+    // Calculate remaining time to show loading screen
+    const remainingTime = Math.max(MIN_LOADING_TIME - loadTime, 0);
+
+    console.log('Page loaded in', loadTime, 'ms');
+    console.log('Showing loading screen for additional', remainingTime, 'ms');
+
+    // Wait for remaining time, then fade out
+    setTimeout(() => {
+        console.log('Starting fade out');
+        document.body.classList.add('loaded');
+        document.body.style.overflow = ''; // Re-enable scrolling
+
+        // Remove loading screen from DOM after transition completes
+        setTimeout(() => {
+            if (loadingScreen) {
+                loadingScreen.remove();
+                console.log('Loading screen removed');
+            }
+        }, 1000);
+    }, remainingTime);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all features
     initNavbar();
@@ -86,9 +124,27 @@ function initCarousel() {
 
     let currentIndex = 0;
     const totalSlides = slides.length;
+    let isCarouselMode = false;
+
+    // Check if carousel mode should be active based on screen size
+    function checkCarouselMode() {
+        const wasCarouselMode = isCarouselMode;
+        isCarouselMode = window.innerWidth <= 1024;
+
+        if (isCarouselMode && !wasCarouselMode) {
+            // Switched to carousel mode
+            updateCarousel();
+        } else if (!isCarouselMode && wasCarouselMode) {
+            // Switched to grid mode - reset transform
+            track.style.transform = 'translateX(0)';
+            currentIndex = 0;
+        }
+    }
 
     // Function to update carousel position
     function updateCarousel() {
+        if (!isCarouselMode) return;
+
         const offset = -currentIndex * 100;
         track.style.transform = `translateX(${offset}%)`;
 
@@ -102,14 +158,20 @@ function initCarousel() {
         });
     }
 
+    // Initialize carousel mode check
+    checkCarouselMode();
+    window.addEventListener('resize', debounce(checkCarouselMode, 250));
+
     // Next slide
     function nextSlide() {
+        if (!isCarouselMode) return;
         currentIndex = (currentIndex + 1) % totalSlides;
         updateCarousel();
     }
 
     // Previous slide
     function prevSlide() {
+        if (!isCarouselMode) return;
         currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
         updateCarousel();
     }
