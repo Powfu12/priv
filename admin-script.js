@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadOrders() {
     const ordersContainer = document.getElementById('ordersContainer');
+
+    if (!ordersContainer) {
+        console.error('Orders container element not found');
+        return;
+    }
+
     ordersContainer.innerHTML = '<div class="loading">Loading orders...</div>';
 
     // Check if Firebase is initialized
@@ -55,6 +61,11 @@ function loadOrders() {
 
 function displayOrders() {
     const ordersContainer = document.getElementById('ordersContainer');
+
+    if (!ordersContainer) {
+        console.error('Orders container element not found');
+        return;
+    }
 
     if (filteredOrders.length === 0) {
         ordersContainer.innerHTML = '<div class="no-orders">No orders found.</div>';
@@ -103,14 +114,27 @@ function updateStats() {
     const pendingOrders = allOrders.filter(order => order.status === 'pending').length;
     const totalRevenue = allOrders.reduce((sum, order) => sum + (order.payment?.total || 0), 0);
 
-    document.getElementById('totalOrders').textContent = totalOrders;
-    document.getElementById('pendingOrders').textContent = pendingOrders;
-    document.getElementById('totalRevenue').textContent = `€${totalRevenue.toFixed(2)}`;
+    // Safely update stats with null checks
+    const totalOrdersEl = document.getElementById('totalOrders');
+    const pendingOrdersEl = document.getElementById('pendingOrders');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+
+    if (totalOrdersEl) totalOrdersEl.textContent = totalOrders;
+    if (pendingOrdersEl) pendingOrdersEl.textContent = pendingOrders;
+    if (totalRevenueEl) totalRevenueEl.textContent = `€${totalRevenue.toFixed(2)}`;
 }
 
 function filterOrders() {
-    const statusFilter = document.getElementById('statusFilter').value;
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilterEl = document.getElementById('statusFilter');
+    const searchInputEl = document.getElementById('searchInput');
+
+    if (!statusFilterEl || !searchInputEl) {
+        console.error('Filter elements not found');
+        return;
+    }
+
+    const statusFilter = statusFilterEl.value;
+    const searchInput = searchInputEl.value.toLowerCase();
 
     filteredOrders = allOrders.filter(order => {
         // Status filter
@@ -140,6 +164,11 @@ function viewOrder(orderId) {
     };
 
     const modalBody = document.getElementById('modalBody');
+    if (!modalBody) {
+        console.error('Modal body element not found');
+        return;
+    }
+
     modalBody.innerHTML = `
         <div class="detail-group">
             <div class="detail-label">Order Code</div>
@@ -228,7 +257,10 @@ function viewOrder(orderId) {
         </div>
     `;
 
-    document.getElementById('orderModal').style.display = 'block';
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
 }
 
 function updateOrderStatus(orderId, newStatus) {
@@ -258,7 +290,10 @@ function updateOrderStatus(orderId, newStatus) {
 
 function closeModal(event) {
     if (!event || event.target.id === 'orderModal') {
-        document.getElementById('orderModal').style.display = 'none';
+        const modal = document.getElementById('orderModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 }
 
