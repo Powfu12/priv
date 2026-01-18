@@ -260,6 +260,9 @@ function saveOrderToFirebase(orderData) {
         return;
     }
 
+    // Debug: Log the order data being saved
+    console.log('Saving order to Firebase:', orderData);
+
     try {
         // Save order to Firebase Realtime Database
         const ordersRef = window.firebaseDB.ref('orders');
