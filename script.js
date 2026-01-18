@@ -122,6 +122,11 @@ function initCarousel() {
     const nextBtn = document.querySelector('.carousel-btn-next');
     const indicators = document.querySelectorAll('.indicator');
 
+    // Exit early if carousel elements don't exist on this page
+    if (!track || slides.length === 0) {
+        return;
+    }
+
     let currentIndex = 0;
     const totalSlides = slides.length;
     let isCarouselMode = false;

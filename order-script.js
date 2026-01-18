@@ -137,10 +137,22 @@ function updateOrderSummary() {
     const packageValue = selectedPackage ? selectedPackage.value : '10m';
     const packageInfo = packagePrices[packageValue];
 
+    // Safety check - exit if packageInfo doesn't exist
+    if (!packageInfo) {
+        console.error('Invalid package selected:', packageValue);
+        return;
+    }
+
     // Get selected delivery method
     const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked');
     const deliveryValue = selectedDelivery ? selectedDelivery.value : 'standard';
     const deliveryPrice = deliveryPrices[deliveryValue];
+
+    // Safety check for delivery price
+    if (deliveryPrice === undefined) {
+        console.error('Invalid delivery method selected:', deliveryValue);
+        return;
+    }
 
     // Update summary
     const summaryPackage = document.getElementById('summaryPackage');
