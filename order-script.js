@@ -175,8 +175,105 @@ function completeOrder() {
         const orderCode = generateOrderCode();
         document.getElementById('orderCode').textContent = orderCode;
 
+        // Collect all order data
+        const orderData = collectOrderData(orderCode);
+
+        // Save to Firebase
+        saveOrderToFirebase(orderData);
+
         // Show confirmation step
         showStep(5);
+    }
+}
+
+function collectOrderData(orderCode) {
+    // Get selected package
+    const selectedPackage = document.querySelector('input[name="package"]:checked');
+    const packageValue = selectedPackage ? selectedPackage.value : '10m';
+    const packageInfo = packagePrices[packageValue];
+
+    // Get selected delivery method
+    const selectedDelivery = document.querySelector('input[name="deliveryMethod"]:checked');
+    const deliveryValue = selectedDelivery ? selectedDelivery.value : 'standard';
+    const deliveryPrice = deliveryPrices[deliveryValue];
+
+    // Get selected delivery type
+    const selectedDeliveryType = document.querySelector('input[name="deliveryType"]:checked');
+    const deliveryType = selectedDeliveryType ? selectedDeliveryType.value : 'home';
+
+    // Get selected payment method
+    const selectedPayment = document.querySelector('input[name="payment"]:checked');
+    const paymentMethod = selectedPayment ? selectedPayment.value : 'paysafe';
+
+    // Calculate total
+    const total = packageInfo.price + deliveryPrice;
+
+    // Collect all form data
+    const orderData = {
+        orderCode: orderCode,
+        timestamp: new Date().toISOString(),
+        status: 'pending',
+
+        // Package details
+        package: {
+            type: packageValue,
+            name: packageInfo.name,
+            price: packageInfo.price
+        },
+
+        // Personal information
+        personalInfo: {
+            fullName: document.getElementById('fullName')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            telegram: document.getElementById('telegram')?.value || ''
+        },
+
+        // Shipping details
+        shipping: {
+            method: deliveryValue,
+            methodPrice: deliveryPrice,
+            type: deliveryType,
+            address: {
+                street: document.getElementById('streetAddress')?.value || '',
+                city: document.getElementById('city')?.value || '',
+                postalCode: document.getElementById('postalCode')?.value || '',
+                country: document.getElementById('country')?.value || ''
+            }
+        },
+
+        // Payment
+        payment: {
+            method: paymentMethod,
+            total: total
+        }
+    };
+
+    return orderData;
+}
+
+function saveOrderToFirebase(orderData) {
+    // Check if Firebase is initialized
+    if (!window.firebaseDB) {
+        console.error('Firebase is not initialized. Please check your firebase-config.js file.');
+        // Still show success to user, but log error for admin
+        return;
+    }
+
+    try {
+        // Save order to Firebase Realtime Database
+        const ordersRef = window.firebaseDB.ref('orders');
+        const newOrderRef = ordersRef.push();
+
+        newOrderRef.set(orderData)
+            .then(() => {
+                console.log('Order saved successfully to Firebase:', orderData.orderCode);
+            })
+            .catch((error) => {
+                console.error('Error saving order to Firebase:', error);
+            });
+    } catch (error) {
+        console.error('Error accessing Firebase:', error);
     }
 }
 
