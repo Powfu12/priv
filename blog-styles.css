@@ -138,6 +138,16 @@
     word-wrap: break-word;
 }
 
+.post-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: block;
+    object-fit: cover;
+}
+
 .post-footer {
     display: flex;
     align-items: center;

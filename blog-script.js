@@ -95,6 +95,9 @@ function displayPosts() {
         const hasLiked = hasUserLikedPost(post.id);
         const likedClass = hasLiked ? 'liked' : '';
 
+        // Check if post has an image
+        const imageHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="" class="post-image">` : '';
+
         return `
             <div class="post-card" data-post-id="${post.id}">
                 <div class="post-header">
@@ -110,6 +113,7 @@ function displayPosts() {
                 </div>
                 ${title ? `<h2 class="post-title">${escapeHtml(title)}</h2>` : ''}
                 <div class="post-content">${escapeHtml(content)}</div>
+                ${imageHtml}
                 <div class="post-footer">
                     <div class="post-stat">
                         <svg fill="currentColor" viewBox="0 0 16 16">

@@ -5,6 +5,8 @@ let currentFilter = 'all';
 let currentTab = 'orders';
 let allPosts = [];
 let currentPostId = null;
+let selectedImageFile = null;
+let currentImageUrl = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -853,6 +855,8 @@ function updatePostsStats() {
 // Open create post modal
 function openCreatePostModal() {
     currentPostId = null;
+    selectedImageFile = null;
+    currentImageUrl = null;
     const modal = document.getElementById('postModal');
     const modalTitle = document.getElementById('postModalTitle');
     const form = document.getElementById('postForm');
@@ -864,6 +868,9 @@ function openCreatePostModal() {
     document.getElementById('postLikes').value = '0';
     document.getElementById('postPublished').checked = true;
 
+    // Reset image preview
+    removeImage();
+
     if (modal) modal.classList.add('active');
 }
 
@@ -873,6 +880,8 @@ function editPost(postId) {
     if (!post) return;
 
     currentPostId = postId;
+    selectedImageFile = null;
+    currentImageUrl = post.imageUrl || null;
     const modal = document.getElementById('postModal');
     const modalTitle = document.getElementById('postModalTitle');
 
@@ -883,6 +892,20 @@ function editPost(postId) {
     document.getElementById('postViews').value = post.views || 0;
     document.getElementById('postLikes').value = post.likes || 0;
     document.getElementById('postPublished').checked = post.published !== false;
+
+    // Show existing image if present
+    const preview = document.getElementById('imagePreview');
+    const container = document.getElementById('imagePreviewContainer');
+    const fileInput = document.getElementById('postImage');
+
+    if (fileInput) fileInput.value = '';
+
+    if (post.imageUrl && preview && container) {
+        preview.src = post.imageUrl;
+        container.style.display = 'block';
+    } else if (container) {
+        container.style.display = 'none';
+    }
 
     if (modal) modal.classList.add('active');
 }
@@ -905,7 +928,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function savePost() {
+async function savePost() {
     if (!window.firebaseDB) {
         alert('Firebase is not configured');
         return;
@@ -922,41 +945,65 @@ function savePost() {
         return;
     }
 
-    const postData = {
-        title: title,
-        content: content,
-        views: views,
-        likes: likes,
-        published: published,
-        timestamp: currentPostId ?
-            (allPosts.find(p => p.id === currentPostId)?.timestamp || Date.now()) :
-            Date.now()
-    };
+    const submitButton = document.querySelector('#postForm button[type="submit"]');
+    const originalButtonText = submitButton ? submitButton.textContent : '';
 
-    if (currentPostId) {
-        // Update existing post
-        const postRef = window.firebaseDB.ref(`posts/${currentPostId}`);
-        postRef.update(postData)
-            .then(() => {
-                alert('Post updated successfully');
-                closePostModal();
-            })
-            .catch((error) => {
-                console.error('Error updating post:', error);
-                alert('Error updating post');
-            });
-    } else {
-        // Create new post
-        const postsRef = window.firebaseDB.ref('posts');
-        postsRef.push(postData)
-            .then(() => {
-                alert('Post created successfully');
-                closePostModal();
-            })
-            .catch((error) => {
-                console.error('Error creating post:', error);
-                alert('Error creating post');
-            });
+    try {
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+        }
+
+        let imageUrl = currentImageUrl;
+
+        // Handle image upload
+        if (selectedImageFile) {
+            // Upload new image
+            imageUrl = await uploadImage(selectedImageFile);
+
+            // Delete old image if editing and had an old image
+            if (currentPostId && currentImageUrl && currentImageUrl !== imageUrl) {
+                await deleteImageFromStorage(currentImageUrl);
+            }
+        }
+
+        const postData = {
+            title: title,
+            content: content,
+            views: views,
+            likes: likes,
+            published: published,
+            timestamp: currentPostId ?
+                (allPosts.find(p => p.id === currentPostId)?.timestamp || Date.now()) :
+                Date.now()
+        };
+
+        // Add imageUrl only if it exists
+        if (imageUrl) {
+            postData.imageUrl = imageUrl;
+        }
+
+        if (currentPostId) {
+            // Update existing post
+            const postRef = window.firebaseDB.ref(`posts/${currentPostId}`);
+            await postRef.update(postData);
+            alert('Post updated successfully');
+        } else {
+            // Create new post
+            const postsRef = window.firebaseDB.ref('posts');
+            await postsRef.push(postData);
+            alert('Post created successfully');
+        }
+
+        closePostModal();
+    } catch (error) {
+        console.error('Error saving post:', error);
+        alert('Error saving post: ' + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     }
 }
 
@@ -974,21 +1021,28 @@ function confirmDeletePost(postId) {
 }
 
 // Delete post
-function deletePost(postId) {
+async function deletePost(postId) {
     if (!window.firebaseDB) {
         alert('Firebase is not configured');
         return;
     }
 
-    const postRef = window.firebaseDB.ref(`posts/${postId}`);
-    postRef.remove()
-        .then(() => {
-            alert('Post deleted successfully');
-        })
-        .catch((error) => {
-            console.error('Error deleting post:', error);
-            alert('Error deleting post');
-        });
+    try {
+        const post = allPosts.find(p => p.id === postId);
+
+        // Delete image from storage if it exists
+        if (post && post.imageUrl) {
+            await deleteImageFromStorage(post.imageUrl);
+        }
+
+        // Delete post from database
+        const postRef = window.firebaseDB.ref(`posts/${postId}`);
+        await postRef.remove();
+        alert('Post deleted successfully');
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Error deleting post');
+    }
 }
 
 // Escape HTML helper
@@ -1001,6 +1055,84 @@ function escapeHtml(text) {
         "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Handle image selection
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+
+    selectedImageFile = file;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('imagePreview');
+        const container = document.getElementById('imagePreviewContainer');
+        if (preview && container) {
+            preview.src = e.target.result;
+            container.style.display = 'block';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+// Remove image
+function removeImage() {
+    selectedImageFile = null;
+    currentImageUrl = null;
+    const preview = document.getElementById('imagePreview');
+    const container = document.getElementById('imagePreviewContainer');
+    const fileInput = document.getElementById('postImage');
+
+    if (preview) preview.src = '';
+    if (container) container.style.display = 'none';
+    if (fileInput) fileInput.value = '';
+}
+
+// Upload image to Firebase Storage
+async function uploadImage(file) {
+    if (!window.firebase || !window.firebase.storage) {
+        throw new Error('Firebase Storage is not initialized');
+    }
+
+    const storage = window.firebase.storage();
+    const filename = `posts/${Date.now()}_${file.name}`;
+    const storageRef = storage.ref(filename);
+
+    try {
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        return downloadURL;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
+}
+
+// Delete image from Firebase Storage
+async function deleteImageFromStorage(imageUrl) {
+    if (!imageUrl || !window.firebase || !window.firebase.storage) return;
+
+    try {
+        const storage = window.firebase.storage();
+        const imageRef = storage.refFromURL(imageUrl);
+        await imageRef.delete();
+    } catch (error) {
+        console.error('Error deleting image:', error);
+    }
 }
 
 // Make functions globally accessible
@@ -1019,3 +1151,5 @@ window.editPost = editPost;
 window.closePostModal = closePostModal;
 window.confirmDeletePost = confirmDeletePost;
 window.deletePost = deletePost;
+window.handleImageSelect = handleImageSelect;
+window.removeImage = removeImage;
