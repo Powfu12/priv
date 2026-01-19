@@ -151,15 +151,8 @@ function loadPosts() {
 
             displayPosts();
 
-            // Increment views ONCE, AFTER display, with debouncing
-            if (!hasLoadedOnce) {
-                hasLoadedOnce = true;
-                // Wait 2 seconds after page load to increment views
-                // This ensures the user actually viewed the page
-                setTimeout(() => {
-                    incrementViewsOnce();
-                }, 2000);
-            }
+            // Views and likes are cosmetic only - admin controls actual values
+            hasLoadedOnce = true;
         })
         .catch(error => {
             console.error('Error loading posts:', error);
@@ -231,33 +224,10 @@ function displayPosts() {
     postsContainer.innerHTML = postsHTML;
 }
 
-// Increment views ONCE for all posts in a single batch operation
-function incrementViewsOnce() {
-    if (!window.firebaseDB) return;
+// Views are cosmetic only - display what admin sets, no tracking
 
-    const viewedPosts = getViewedPosts();
-    const updates = {};
-
-    allPosts.forEach(post => {
-        if (!viewedPosts.includes(post.id)) {
-            const currentViews = post.views || 0;
-            updates[`posts/${post.id}/views`] = currentViews + 1;
-            addViewedPost(post.id);
-        }
-    });
-
-    // Single batch update - more efficient and no listener triggers
-    if (Object.keys(updates).length > 0) {
-        window.firebaseDB.ref().update(updates).catch(err => {
-            console.error('Error updating views:', err);
-        });
-    }
-}
-
-// Like toggle - separate operation, doesn't trigger main load
+// Like toggle - COSMETIC ONLY (visual feedback, no Firebase sync)
 function toggleLike(postId) {
-    if (!window.firebaseDB) return;
-
     const hasLiked = hasUserLikedPost(postId);
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
@@ -265,24 +235,14 @@ function toggleLike(postId) {
     const currentLikes = post.likes || 0;
     const newLikes = hasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
-    // Update local state immediately for instant UI feedback
+    // Update local display only - NOT synced to Firebase
     post.likes = newLikes;
     const likeCountEl = document.getElementById(`like-count-${postId}`);
     if (likeCountEl) {
         likeCountEl.textContent = formatNumber(newLikes);
     }
 
-    // Update Firebase in background
-    window.firebaseDB.ref(`posts/${postId}/likes`).set(newLikes).catch(err => {
-        console.error('Error updating likes:', err);
-        // Revert on error
-        post.likes = currentLikes;
-        if (likeCountEl) {
-            likeCountEl.textContent = formatNumber(currentLikes);
-        }
-    });
-
-    // Update local storage
+    // Update localStorage for visual persistence only
     if (hasLiked) {
         removeUserLike(postId);
     } else {
@@ -338,29 +298,7 @@ function removeUserLike(postId) {
     }
 }
 
-// Mobile-safe session storage helpers for views
-function getViewedPosts() {
-    try {
-        const data = SafeStorage.getItem('session', 'viewedPosts');
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        console.warn('Error reading viewed posts:', e);
-        return []; // Safe fallback
-    }
-}
-
-function addViewedPost(postId) {
-    try {
-        const viewed = getViewedPosts();
-        if (!viewed.includes(postId)) {
-            viewed.push(postId);
-            SafeStorage.setItem('session', 'viewedPosts', JSON.stringify(viewed));
-        }
-    } catch (e) {
-        console.warn('Error adding viewed post:', e);
-        // Fail silently - view tracking is not critical
-    }
-}
+// Views are cosmetic only - no tracking needed
 
 // Utility functions
 function formatPostDate(timestamp) {
