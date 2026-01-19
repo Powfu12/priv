@@ -1,12 +1,12 @@
-// Order Form JavaScript
+// Order Form JavaScript - Enhanced with Validation
 let currentStep = 1;
 const totalSteps = 5;
 
 // Package prices
 const packagePrices = {
-    '10m': { name: '10M Package', price: 24.99 },
-    '20m': { name: '20M Package', price: 44.99 },
-    '50m': { name: '50M Package', price: 99.99 }
+    '10m': { name: '10M Package', price: 79.86 },
+    '20m': { name: '20M Package', price: 149.86 },
+    '50m': { name: '50M Package', price: 299.86 }
 };
 
 // Delivery prices
@@ -15,10 +15,23 @@ const deliveryPrices = {
     'express': 15.99
 };
 
+// Validation patterns
+const validationPatterns = {
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    phone: /^[\d\s\+\-\(\)]+$/,
+    telegram: /^@[a-zA-Z0-9_]{5,32}$/,
+    name: /^[a-zA-ZÀ-ÿ\s'-]{2,50}$/,
+    address: /^[a-zA-Z0-9À-ÿ\s,.'#-]{3,100}$/,
+    city: /^[a-zA-ZÀ-ÿ\s'-]{2,50}$/,
+    postalCode: /^[a-zA-Z0-9\s-]{3,10}$/,
+    country: /^[a-zA-ZÀ-ÿ\s]{2,50}$/
+};
+
 // Initialize form
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
     updateOrderSummary();
+    setupRealTimeValidation();
 
     // Package selection
     document.querySelectorAll('.package-option').forEach(option => {
@@ -60,8 +73,171 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeForm() {
-    // Set first step as active
     showStep(1);
+}
+
+function setupRealTimeValidation() {
+    // Email validation
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.email, 'Please enter a valid email address (e.g., name@example.com)');
+        });
+        emailInput.addEventListener('input', function() {
+            clearFieldError(this);
+        });
+    }
+
+    // Phone validation
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            // Only allow numbers, spaces, +, -, (, )
+            this.value = this.value.replace(/[^\d\s\+\-\(\)]/g, '');
+            clearFieldError(this);
+        });
+        phoneInput.addEventListener('blur', function() {
+            if (this.value.trim() && !validationPatterns.phone.test(this.value)) {
+                showFieldError(this, 'Please enter a valid phone number with only numbers');
+            }
+        });
+    }
+
+    // Telegram validation
+    const telegramInput = document.getElementById('telegram');
+    if (telegramInput) {
+        telegramInput.addEventListener('input', function() {
+            // Auto-add @ if user starts typing without it
+            if (this.value && !this.value.startsWith('@')) {
+                this.value = '@' + this.value;
+            }
+            clearFieldError(this);
+        });
+        telegramInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.telegram, 'Telegram username must start with @ and be 5-32 characters (e.g., @username)');
+        });
+    }
+
+    // Name validation
+    const nameInput = document.getElementById('fullName');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            // Only allow letters, spaces, hyphens, apostrophes
+            this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, '');
+            clearFieldError(this);
+        });
+        nameInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.name, 'Please enter a valid full name (2-50 characters, letters only)');
+        });
+    }
+
+    // Address validation
+    const addressInput = document.getElementById('streetAddress');
+    if (addressInput) {
+        addressInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.address, 'Please enter a valid street address');
+        });
+        addressInput.addEventListener('input', function() {
+            clearFieldError(this);
+        });
+    }
+
+    // City validation
+    const cityInput = document.getElementById('city');
+    if (cityInput) {
+        cityInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, '');
+            clearFieldError(this);
+        });
+        cityInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.city, 'Please enter a valid city name');
+        });
+    }
+
+    // Postal code validation
+    const postalInput = document.getElementById('postalCode');
+    if (postalInput) {
+        postalInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-Z0-9\s-]/g, '').toUpperCase();
+            clearFieldError(this);
+        });
+        postalInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.postalCode, 'Please enter a valid postal code');
+        });
+    }
+
+    // Country validation
+    const countryInput = document.getElementById('country');
+    if (countryInput) {
+        countryInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+            clearFieldError(this);
+        });
+        countryInput.addEventListener('blur', function() {
+            validateField(this, validationPatterns.country, 'Please enter a valid country name');
+        });
+    }
+}
+
+function validateField(input, pattern, errorMessage) {
+    const value = input.value.trim();
+
+    if (!value) {
+        showFieldError(input, 'This field is required');
+        return false;
+    }
+
+    if (!pattern.test(value)) {
+        showFieldError(input, errorMessage);
+        return false;
+    }
+
+    showFieldSuccess(input);
+    return true;
+}
+
+function showFieldError(input, message) {
+    clearFieldError(input);
+
+    input.style.borderColor = '#ff4444';
+    input.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.textContent = message;
+    errorDiv.style.color = '#ff4444';
+    errorDiv.style.fontSize = '0.875rem';
+    errorDiv.style.marginTop = '0.5rem';
+    errorDiv.style.display = 'flex';
+    errorDiv.style.alignItems = 'center';
+    errorDiv.style.gap = '0.5rem';
+
+    const icon = document.createElement('span');
+    icon.textContent = '⚠️';
+    errorDiv.insertBefore(icon, errorDiv.firstChild);
+
+    input.parentElement.appendChild(errorDiv);
+}
+
+function showFieldSuccess(input) {
+    clearFieldError(input);
+    input.style.borderColor = '#10b981';
+    input.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+
+    setTimeout(() => {
+        input.style.borderColor = '';
+        input.style.boxShadow = '';
+    }, 1000);
+}
+
+function clearFieldError(input) {
+    input.style.borderColor = '';
+    input.style.boxShadow = '';
+
+    const existingError = input.parentElement.querySelector('.field-error');
+    if (existingError) {
+        existingError.remove();
+    }
 }
 
 function showStep(step) {
@@ -90,12 +266,21 @@ function showStep(step) {
         }
     });
 
+    // Update progress lines
+    document.querySelectorAll('.progress-line').forEach((line, index) => {
+        if (index < step - 1) {
+            line.classList.add('completed');
+        } else {
+            line.classList.remove('completed');
+        }
+    });
+
     currentStep = step;
 
     // Scroll smoothly to the top of the form section
     const orderSection = document.querySelector('.order-section');
     if (orderSection) {
-        const yOffset = -100; // Offset to account for sticky navbar
+        const yOffset = -100;
         const y = orderSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
         window.scrollTo({
@@ -126,30 +311,86 @@ function validateCurrentStep() {
     const inputs = currentFormStep.querySelectorAll('input[required], select[required]');
     let isValid = true;
     let firstInvalidInput = null;
+    let errors = [];
 
     inputs.forEach(input => {
-        // Remove previous error styling
-        input.style.borderColor = '';
+        clearFieldError(input);
 
-        if (!input.value.trim()) {
+        const value = input.value.trim();
+        const fieldName = input.getAttribute('name') || input.id;
+        let fieldValid = true;
+        let errorMessage = '';
+
+        // Check if empty
+        if (!value) {
+            fieldValid = false;
+            errorMessage = 'This field is required';
+        } else {
+            // Validate based on field type
+            switch(fieldName) {
+                case 'email':
+                    if (!validationPatterns.email.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid email (e.g., name@example.com)';
+                    }
+                    break;
+                case 'phone':
+                    if (!validationPatterns.phone.test(value) || value.replace(/\D/g, '').length < 6) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid phone number (minimum 6 digits)';
+                    }
+                    break;
+                case 'telegram':
+                    if (!validationPatterns.telegram.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Telegram must start with @ and be 5-32 characters (e.g., @username)';
+                    }
+                    break;
+                case 'fullName':
+                    if (!validationPatterns.name.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid name (2-50 characters, letters only)';
+                    }
+                    break;
+                case 'streetAddress':
+                    if (!validationPatterns.address.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid address';
+                    }
+                    break;
+                case 'city':
+                    if (!validationPatterns.city.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid city name';
+                    }
+                    break;
+                case 'postalCode':
+                    if (!validationPatterns.postalCode.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid postal code';
+                    }
+                    break;
+                case 'country':
+                    if (!validationPatterns.country.test(value)) {
+                        fieldValid = false;
+                        errorMessage = 'Please enter a valid country name';
+                    }
+                    break;
+            }
+        }
+
+        if (!fieldValid) {
             isValid = false;
-            input.style.borderColor = '#ff4444';
-            input.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+            showFieldError(input, errorMessage);
+            errors.push(errorMessage);
 
             if (!firstInvalidInput) {
                 firstInvalidInput = input;
             }
-
-            setTimeout(() => {
-                input.style.borderColor = '';
-                input.style.boxShadow = '';
-            }, 3000);
         }
     });
 
     if (!isValid) {
-        alert('Please fill in all required fields before continuing.');
-
         // Focus on first invalid input and scroll to it
         if (firstInvalidInput) {
             firstInvalidInput.focus();
@@ -166,7 +407,6 @@ function updateOrderSummary() {
     const packageValue = selectedPackage ? selectedPackage.value : '10m';
     const packageInfo = packagePrices[packageValue];
 
-    // Safety check - exit if packageInfo doesn't exist
     if (!packageInfo) {
         console.error('Invalid package selected:', packageValue);
         return;
@@ -177,7 +417,6 @@ function updateOrderSummary() {
     const deliveryValue = selectedDelivery ? selectedDelivery.value : 'standard';
     const deliveryPrice = deliveryPrices[deliveryValue];
 
-    // Safety check for delivery price
     if (deliveryPrice === undefined) {
         console.error('Invalid delivery method selected:', deliveryValue);
         return;
@@ -224,19 +463,33 @@ function generateOrderCode() {
 function copyOrderCode() {
     const orderCode = document.getElementById('orderCode').textContent;
 
-    // Create temporary input element
+    // Use modern clipboard API if available
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(orderCode).then(() => {
+            showCopyFeedback();
+        }).catch(() => {
+            fallbackCopyToClipboard(orderCode);
+        });
+    } else {
+        fallbackCopyToClipboard(orderCode);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
     const tempInput = document.createElement('input');
-    tempInput.value = orderCode;
+    tempInput.value = text;
     document.body.appendChild(tempInput);
     tempInput.select();
     document.execCommand('copy');
     document.body.removeChild(tempInput);
+    showCopyFeedback();
+}
 
-    // Show feedback
+function showCopyFeedback() {
     const copyBtn = document.querySelector('.btn-copy');
     const originalHTML = copyBtn.innerHTML;
     copyBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Copied!';
-    copyBtn.style.background = '#00cc66';
+    copyBtn.style.background = '#10b981';
 
     setTimeout(() => {
         copyBtn.innerHTML = originalHTML;
