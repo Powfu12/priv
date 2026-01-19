@@ -91,6 +91,18 @@ function showStep(step) {
     });
 
     currentStep = step;
+
+    // Scroll smoothly to the top of the form section
+    const orderSection = document.querySelector('.order-section');
+    if (orderSection) {
+        const yOffset = -100; // Offset to account for sticky navbar
+        const y = orderSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+        window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function nextStep() {
@@ -113,19 +125,36 @@ function validateCurrentStep() {
 
     const inputs = currentFormStep.querySelectorAll('input[required], select[required]');
     let isValid = true;
+    let firstInvalidInput = null;
 
     inputs.forEach(input => {
+        // Remove previous error styling
+        input.style.borderColor = '';
+
         if (!input.value.trim()) {
             isValid = false;
             input.style.borderColor = '#ff4444';
+            input.style.boxShadow = '0 0 0 3px rgba(255, 68, 68, 0.1)';
+
+            if (!firstInvalidInput) {
+                firstInvalidInput = input;
+            }
+
             setTimeout(() => {
                 input.style.borderColor = '';
-            }, 2000);
+                input.style.boxShadow = '';
+            }, 3000);
         }
     });
 
     if (!isValid) {
-        alert('Please fill in all required fields');
+        alert('Please fill in all required fields before continuing.');
+
+        // Focus on first invalid input and scroll to it
+        if (firstInvalidInput) {
+            firstInvalidInput.focus();
+            firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
 
     return isValid;
