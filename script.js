@@ -139,10 +139,12 @@ function initCarousel() {
         if (isCarouselMode && !wasCarouselMode) {
             // Switched to carousel mode
             updateCarousel();
+            startAutoPlay();
         } else if (!isCarouselMode && wasCarouselMode) {
-            // Switched to grid mode - reset transform
+            // Switched to grid mode - reset transform and stop autoplay
             track.style.transform = 'translateX(0)';
             currentIndex = 0;
+            stopAutoPlay();
         }
     }
 
@@ -198,31 +200,49 @@ function initCarousel() {
         });
     });
 
-    // Auto-play carousel (optional)
-    let autoPlayInterval = setInterval(nextSlide, 5000);
+    // Auto-play carousel (only in carousel mode - mobile/tablet)
+    let autoPlayInterval = null;
 
-    // Pause auto-play on hover
+    function startAutoPlay() {
+        if (isCarouselMode && !autoPlayInterval) {
+            autoPlayInterval = setInterval(nextSlide, 5000);
+        }
+    }
+
+    function stopAutoPlay() {
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+        }
+    }
+
+    // Pause auto-play on hover (mobile/tablet only)
     const carouselContainer = document.querySelector('.carousel-container');
     if (carouselContainer) {
         carouselContainer.addEventListener('mouseenter', () => {
-            clearInterval(autoPlayInterval);
+            stopAutoPlay();
         });
 
         carouselContainer.addEventListener('mouseleave', () => {
-            autoPlayInterval = setInterval(nextSlide, 5000);
+            startAutoPlay();
         });
     }
 
+    // Start auto-play if in carousel mode
+    startAutoPlay();
+
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
+        if (!isCarouselMode) return;
+
         if (e.key === 'ArrowLeft') {
             prevSlide();
-            clearInterval(autoPlayInterval);
-            autoPlayInterval = setInterval(nextSlide, 5000);
+            stopAutoPlay();
+            startAutoPlay();
         } else if (e.key === 'ArrowRight') {
             nextSlide();
-            clearInterval(autoPlayInterval);
-            autoPlayInterval = setInterval(nextSlide, 5000);
+            stopAutoPlay();
+            startAutoPlay();
         }
     });
 
@@ -242,6 +262,8 @@ function initCarousel() {
     }
 
     function handleSwipe() {
+        if (!isCarouselMode) return;
+
         const swipeThreshold = 50;
         const diff = touchStartX - touchEndX;
 
@@ -253,8 +275,8 @@ function initCarousel() {
                 // Swiped right - previous slide
                 prevSlide();
             }
-            clearInterval(autoPlayInterval);
-            autoPlayInterval = setInterval(nextSlide, 5000);
+            stopAutoPlay();
+            startAutoPlay();
         }
     }
 }
