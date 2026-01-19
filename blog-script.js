@@ -9,20 +9,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function waitForFirebaseAndLoadPosts() {
+    console.log(`[Blog] Attempt ${firebaseCheckAttempts + 1}/${MAX_FIREBASE_CHECK_ATTEMPTS} - Checking for Firebase...`);
+    console.log('[Blog] window.firebaseDB exists:', !!window.firebaseDB);
+    console.log('[Blog] typeof firebase:', typeof firebase);
+
     if (window.firebaseDB) {
         // Firebase is ready, load posts
+        console.log('[Blog] Firebase ready! Loading posts...');
         loadPosts();
     } else if (firebaseCheckAttempts < MAX_FIREBASE_CHECK_ATTEMPTS) {
         // Firebase not ready yet, wait and try again
         firebaseCheckAttempts++;
+        console.log(`[Blog] Firebase not ready, retrying in 300ms (attempt ${firebaseCheckAttempts}/${MAX_FIREBASE_CHECK_ATTEMPTS})`);
         setTimeout(waitForFirebaseAndLoadPosts, 300);
     } else {
         // Firebase failed to initialize after multiple attempts
+        console.error('[Blog] Firebase failed to initialize after', MAX_FIREBASE_CHECK_ATTEMPTS, 'attempts');
         const postsContainer = document.getElementById('postsContainer');
         if (postsContainer) {
             postsContainer.innerHTML = `
                 <div class="loading-posts">
                     <p style="color: #e74c3c;">Unable to connect to server. Please refresh the page.</p>
+                    <p style="color: #999; font-size: 0.8rem;">Firebase did not initialize after ${MAX_FIREBASE_CHECK_ATTEMPTS} attempts</p>
                 </div>
             `;
         }
@@ -30,24 +38,32 @@ function waitForFirebaseAndLoadPosts() {
 }
 
 function loadPosts() {
+    console.log('[Blog] loadPosts() called');
     const postsContainer = document.getElementById('postsContainer');
     const emptyState = document.getElementById('emptyState');
 
     if (!postsContainer) {
-        console.error('Posts container not found');
+        console.error('[Blog] Posts container not found!');
         return;
     }
+
+    console.log('[Blog] Posts container found');
 
     // Check if Firebase is initialized
     if (!window.firebaseDB) {
-        console.error('Firebase is not initialized');
+        console.error('[Blog] Firebase is not initialized in loadPosts!');
         return;
     }
 
+    console.log('[Blog] Firebase initialized, creating posts reference...');
+
     try {
         const postsRef = window.firebaseDB.ref('posts');
+        console.log('[Blog] Posts reference created, setting up listener...');
 
         postsRef.on('value', (snapshot) => {
+            console.log('[Blog] Firebase value event triggered');
+            console.log('[Blog] Snapshot exists:', snapshot.exists());
             allPosts = [];
 
             if (snapshot.exists()) {
@@ -69,6 +85,7 @@ function loadPosts() {
                 });
             }
 
+            console.log('[Blog] Total posts loaded:', allPosts.length);
             displayPosts();
         }, (error) => {
             console.error('Error loading posts:', error);
@@ -89,17 +106,23 @@ function loadPosts() {
 }
 
 function displayPosts() {
+    console.log('[Blog] displayPosts() called with', allPosts.length, 'posts');
     const postsContainer = document.getElementById('postsContainer');
     const emptyState = document.getElementById('emptyState');
 
-    if (!postsContainer) return;
+    if (!postsContainer) {
+        console.error('[Blog] Posts container not found in displayPosts!');
+        return;
+    }
 
     if (allPosts.length === 0) {
+        console.log('[Blog] No posts to display, showing empty state');
         postsContainer.style.display = 'none';
         if (emptyState) emptyState.style.display = 'block';
         return;
     }
 
+    console.log('[Blog] Displaying posts...');
     postsContainer.style.display = 'flex';
     if (emptyState) emptyState.style.display = 'none';
 
@@ -152,12 +175,16 @@ function displayPosts() {
         `;
     }).join('');
 
+    console.log('[Blog] Rendering HTML for', allPosts.length, 'posts');
     postsContainer.innerHTML = postsHTML;
+    console.log('[Blog] Posts rendered successfully');
 
     // Increment views for all posts (only once per session)
+    console.log('[Blog] Incrementing views...');
     allPosts.forEach(post => {
         incrementViewIfNeeded(post.id);
     });
+    console.log('[Blog] View increment complete');
 }
 
 function toggleLike(postId) {

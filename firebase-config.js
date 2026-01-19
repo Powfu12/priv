@@ -10,11 +10,34 @@ const firebaseConfig = {
     measurementId: "G-S3PDG0GRNG"
 };
 
-// Initialize Firebase
+// Initialize Firebase with error handling
 try {
+    console.log('[Firebase] Checking if Firebase is available...');
+
+    if (typeof firebase === 'undefined') {
+        console.error('[Firebase] Firebase SDK not loaded!');
+        throw new Error('Firebase SDK not loaded');
+    }
+
+    console.log('[Firebase] Firebase SDK detected, initializing...');
     firebase.initializeApp(firebaseConfig);
     window.firebaseDB = firebase.database();
-    console.log('Firebase initialized successfully');
+    console.log('[Firebase] Firebase initialized successfully');
+    console.log('[Firebase] Database instance created:', !!window.firebaseDB);
 } catch (error) {
-    console.error('Firebase initialization error:', error);
+    console.error('[Firebase] Initialization error:', error);
+    console.error('[Firebase] Error details:', error.message, error.stack);
+
+    // Show error on page
+    setTimeout(() => {
+        const container = document.getElementById('postsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="loading-posts">
+                    <p style="color: #e74c3c;">Firebase initialization failed. Please refresh the page.</p>
+                    <p style="color: #999; font-size: 0.8rem;">Error: ${error.message}</p>
+                </div>
+            `;
+        }
+    }, 1000);
 }
