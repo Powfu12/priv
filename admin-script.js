@@ -1062,9 +1062,9 @@ function handleImageSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB');
+    // Check file size (max 2MB for base64 storage)
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Image size must be less than 2MB for database storage');
         return;
     }
 
@@ -1076,7 +1076,7 @@ function handleImageSelect(event) {
 
     selectedImageFile = file;
 
-    // Show preview
+    // Show preview and convert to base64
     const reader = new FileReader();
     reader.onload = function(e) {
         const preview = document.getElementById('imagePreview');
@@ -1102,37 +1102,26 @@ function removeImage() {
     if (fileInput) fileInput.value = '';
 }
 
-// Upload image to Firebase Storage
+// Convert image to base64 (store directly in database)
 async function uploadImage(file) {
-    if (!window.firebase || !window.firebase.storage) {
-        throw new Error('Firebase Storage is not initialized');
-    }
-
-    const storage = window.firebase.storage();
-    const filename = `posts/${Date.now()}_${file.name}`;
-    const storageRef = storage.ref(filename);
-
-    try {
-        const snapshot = await storageRef.put(file);
-        const downloadURL = await snapshot.ref.getDownloadURL();
-        return downloadURL;
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
-    }
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            resolve(e.target.result); // Returns base64 string
+        };
+        reader.onerror = function(error) {
+            console.error('Error reading image:', error);
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
-// Delete image from Firebase Storage
+// Delete image from storage (no-op for base64, image is deleted with post)
 async function deleteImageFromStorage(imageUrl) {
-    if (!imageUrl || !window.firebase || !window.firebase.storage) return;
-
-    try {
-        const storage = window.firebase.storage();
-        const imageRef = storage.refFromURL(imageUrl);
-        await imageRef.delete();
-    } catch (error) {
-        console.error('Error deleting image:', error);
-    }
+    // No action needed - base64 images are stored in database
+    // They will be deleted automatically when the post is deleted
+    return Promise.resolve();
 }
 
 // Make functions globally accessible
