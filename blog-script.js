@@ -1,76 +1,47 @@
-// Blog Page JavaScript
+// Blog Page JavaScript - Production Ready
 let allPosts = [];
-let firebaseCheckAttempts = 0;
-const MAX_FIREBASE_CHECK_ATTEMPTS = 10;
-let viewsAlreadyIncremented = false; // Prevent view increment loop
+let hasLoadedOnce = false;
 
 // Load posts when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    waitForFirebaseAndLoadPosts();
+    initializeBlog();
 });
 
-function waitForFirebaseAndLoadPosts() {
-    console.log(`[Blog] Attempt ${firebaseCheckAttempts + 1}/${MAX_FIREBASE_CHECK_ATTEMPTS} - Checking for Firebase...`);
-    console.log('[Blog] window.firebaseDB exists:', !!window.firebaseDB);
-    console.log('[Blog] typeof firebase:', typeof firebase);
+async function initializeBlog() {
+    // Wait for Firebase to be ready
+    if (!window.firebaseDB) {
+        let attempts = 0;
+        const maxAttempts = 20;
 
-    if (window.firebaseDB) {
-        // Firebase is ready, load posts
-        console.log('[Blog] Firebase ready! Loading posts...');
-        loadPosts();
-    } else if (firebaseCheckAttempts < MAX_FIREBASE_CHECK_ATTEMPTS) {
-        // Firebase not ready yet, wait and try again
-        firebaseCheckAttempts++;
-        console.log(`[Blog] Firebase not ready, retrying in 300ms (attempt ${firebaseCheckAttempts}/${MAX_FIREBASE_CHECK_ATTEMPTS})`);
-        setTimeout(waitForFirebaseAndLoadPosts, 300);
-    } else {
-        // Firebase failed to initialize after multiple attempts
-        console.error('[Blog] Firebase failed to initialize after', MAX_FIREBASE_CHECK_ATTEMPTS, 'attempts');
-        const postsContainer = document.getElementById('postsContainer');
-        if (postsContainer) {
-            postsContainer.innerHTML = `
-                <div class="loading-posts">
-                    <p style="color: #e74c3c;">Unable to connect to server. Please refresh the page.</p>
-                    <p style="color: #999; font-size: 0.8rem;">Firebase did not initialize after ${MAX_FIREBASE_CHECK_ATTEMPTS} attempts</p>
-                </div>
-            `;
+        while (!window.firebaseDB && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            attempts++;
+        }
+
+        if (!window.firebaseDB) {
+            showError('Firebase failed to initialize. Please refresh the page.');
+            return;
         }
     }
+
+    loadPosts();
 }
 
 function loadPosts() {
-    console.log('[Blog] loadPosts() called');
     const postsContainer = document.getElementById('postsContainer');
-    const emptyState = document.getElementById('emptyState');
 
-    if (!postsContainer) {
-        console.error('[Blog] Posts container not found!');
+    if (!postsContainer || !window.firebaseDB) {
+        showError('Unable to load posts. Please refresh the page.');
         return;
     }
 
-    console.log('[Blog] Posts container found');
-
-    // Check if Firebase is initialized
-    if (!window.firebaseDB) {
-        console.error('[Blog] Firebase is not initialized in loadPosts!');
-        return;
-    }
-
-    console.log('[Blog] Firebase initialized, fetching posts...');
-
-    try {
-        const postsRef = window.firebaseDB.ref('posts');
-        console.log('[Blog] Posts reference created, fetching data ONCE (no listener)...');
-
-        // Use .once() instead of .on() to fetch data only ONCE
-        // This prevents infinite loops from listener callbacks
-        postsRef.once('value').then((snapshot) => {
-            console.log('[Blog] Firebase data fetched successfully');
-            console.log('[Blog] Snapshot exists:', snapshot.exists());
+    // Use .once() to fetch data ONCE - no persistent listener
+    window.firebaseDB.ref('posts').once('value')
+        .then(snapshot => {
             allPosts = [];
 
             if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
+                snapshot.forEach(childSnapshot => {
                     const post = childSnapshot.val();
                     post.id = childSnapshot.key;
 
@@ -88,46 +59,36 @@ function loadPosts() {
                 });
             }
 
-            console.log('[Blog] Total posts loaded:', allPosts.length);
             displayPosts();
-        }).catch((error) => {
-            console.error('[Blog] Error fetching posts:', error);
-            postsContainer.innerHTML = `
-                <div class="loading-posts">
-                    <p style="color: #e74c3c;">Error loading posts. Please refresh the page.</p>
-                    <p style="color: #999; font-size: 0.8rem;">Error: ${error.message}</p>
-                </div>
-            `;
+
+            // Increment views ONCE, AFTER display, with debouncing
+            if (!hasLoadedOnce) {
+                hasLoadedOnce = true;
+                // Wait 2 seconds after page load to increment views
+                // This ensures the user actually viewed the page
+                setTimeout(() => {
+                    incrementViewsOnce();
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading posts:', error);
+            showError('Error loading posts. Please refresh the page.');
         });
-    } catch (error) {
-        console.error('[Blog] Error accessing Firebase:', error);
-        postsContainer.innerHTML = `
-            <div class="loading-posts">
-                <p style="color: #e74c3c;">Error accessing server. Please refresh the page.</p>
-                <p style="color: #999; font-size: 0.8rem;">Error: ${error.message}</p>
-            </div>
-        `;
-    }
 }
 
 function displayPosts() {
-    console.log('[Blog] displayPosts() called with', allPosts.length, 'posts');
     const postsContainer = document.getElementById('postsContainer');
     const emptyState = document.getElementById('emptyState');
 
-    if (!postsContainer) {
-        console.error('[Blog] Posts container not found in displayPosts!');
-        return;
-    }
+    if (!postsContainer) return;
 
     if (allPosts.length === 0) {
-        console.log('[Blog] No posts to display, showing empty state');
         postsContainer.style.display = 'none';
         if (emptyState) emptyState.style.display = 'block';
         return;
     }
 
-    console.log('[Blog] Displaying posts...');
     postsContainer.style.display = 'flex';
     if (emptyState) emptyState.style.display = 'none';
 
@@ -138,11 +99,8 @@ function displayPosts() {
         const likes = post.likes || 0;
         const timestamp = post.timestamp ? formatPostDate(post.timestamp) : 'Just now';
 
-        // Check if user has liked this post
         const hasLiked = hasUserLikedPost(post.id);
         const likedClass = hasLiked ? 'liked' : '';
-
-        // Check if post has an image
         const imageHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="" class="post-image">` : '';
 
         return `
@@ -173,47 +131,83 @@ function displayPosts() {
                         <svg fill="currentColor" viewBox="0 0 16 16">
                             <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
                         </svg>
-                        <span>${formatNumber(likes)}</span>
+                        <span id="like-count-${post.id}">${formatNumber(likes)}</span>
                     </div>
                 </div>
             </div>
         `;
     }).join('');
 
-    console.log('[Blog] Rendering HTML for', allPosts.length, 'posts');
     postsContainer.innerHTML = postsHTML;
-    console.log('[Blog] Posts rendered successfully');
-
-    // DISABLED: View increment temporarily disabled to prevent any Firebase writes
-    // that could trigger loops. Blog is now READ-ONLY.
-    console.log('[Blog] View increment disabled (read-only mode)');
 }
 
-function toggleLike(postId) {
-    // DISABLED: Like functionality temporarily disabled to prevent Firebase writes
-    // Blog is in READ-ONLY mode to prevent infinite loops
-    console.log('[Blog] Like feature disabled (read-only mode)');
-    return;
-}
-
-function incrementViewIfNeeded(postId) {
+// Increment views ONCE for all posts in a single batch operation
+function incrementViewsOnce() {
     if (!window.firebaseDB) return;
 
-    // Check if already viewed in this session
     const viewedPosts = getViewedPosts();
-    if (viewedPosts.includes(postId)) return;
+    const updates = {};
 
-    // Mark as viewed FIRST to prevent infinite loop when Firebase listener re-fires
-    addViewedPost(postId);
+    allPosts.forEach(post => {
+        if (!viewedPosts.includes(post.id)) {
+            const currentViews = post.views || 0;
+            updates[`posts/${post.id}/views`] = currentViews + 1;
+            addViewedPost(post.id);
+        }
+    });
 
+    // Single batch update - more efficient and no listener triggers
+    if (Object.keys(updates).length > 0) {
+        window.firebaseDB.ref().update(updates).catch(err => {
+            console.error('Error updating views:', err);
+        });
+    }
+}
+
+// Like toggle - separate operation, doesn't trigger main load
+function toggleLike(postId) {
+    if (!window.firebaseDB) return;
+
+    const hasLiked = hasUserLikedPost(postId);
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
-    const postRef = window.firebaseDB.ref(`posts/${postId}`);
-    const currentViews = post.views || 0;
+    const currentLikes = post.likes || 0;
+    const newLikes = hasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
-    // Update Firebase - this will trigger the listener again, but we've already marked it as viewed
-    postRef.update({ views: currentViews + 1 });
+    // Update local state immediately for instant UI feedback
+    post.likes = newLikes;
+    const likeCountEl = document.getElementById(`like-count-${postId}`);
+    if (likeCountEl) {
+        likeCountEl.textContent = formatNumber(newLikes);
+    }
+
+    // Update Firebase in background
+    window.firebaseDB.ref(`posts/${postId}/likes`).set(newLikes).catch(err => {
+        console.error('Error updating likes:', err);
+        // Revert on error
+        post.likes = currentLikes;
+        if (likeCountEl) {
+            likeCountEl.textContent = formatNumber(currentLikes);
+        }
+    });
+
+    // Update local storage
+    if (hasLiked) {
+        removeUserLike(postId);
+    } else {
+        addUserLike(postId);
+    }
+
+    // Update heart icon
+    const statEl = document.querySelector(`[onclick="toggleLike('${postId}')"]`);
+    if (statEl) {
+        if (hasLiked) {
+            statEl.classList.remove('liked');
+        } else {
+            statEl.classList.add('liked');
+        }
+    }
 }
 
 // Local storage helpers for likes
@@ -290,4 +284,15 @@ function escapeHtml(text) {
         "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function showError(message) {
+    const postsContainer = document.getElementById('postsContainer');
+    if (postsContainer) {
+        postsContainer.innerHTML = `
+            <div class="loading-posts">
+                <p style="color: #e74c3c;">${message}</p>
+            </div>
+        `;
+    }
 }
