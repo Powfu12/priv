@@ -56,14 +56,16 @@ function loadPosts() {
         return;
     }
 
-    console.log('[Blog] Firebase initialized, creating posts reference...');
+    console.log('[Blog] Firebase initialized, fetching posts...');
 
     try {
         const postsRef = window.firebaseDB.ref('posts');
-        console.log('[Blog] Posts reference created, setting up listener...');
+        console.log('[Blog] Posts reference created, fetching data ONCE (no listener)...');
 
-        postsRef.on('value', (snapshot) => {
-            console.log('[Blog] Firebase value event triggered');
+        // Use .once() instead of .on() to fetch data only ONCE
+        // This prevents infinite loops from listener callbacks
+        postsRef.once('value').then((snapshot) => {
+            console.log('[Blog] Firebase data fetched successfully');
             console.log('[Blog] Snapshot exists:', snapshot.exists());
             allPosts = [];
 
@@ -88,19 +90,21 @@ function loadPosts() {
 
             console.log('[Blog] Total posts loaded:', allPosts.length);
             displayPosts();
-        }, (error) => {
-            console.error('Error loading posts:', error);
+        }).catch((error) => {
+            console.error('[Blog] Error fetching posts:', error);
             postsContainer.innerHTML = `
                 <div class="loading-posts">
                     <p style="color: #e74c3c;">Error loading posts. Please refresh the page.</p>
+                    <p style="color: #999; font-size: 0.8rem;">Error: ${error.message}</p>
                 </div>
             `;
         });
     } catch (error) {
-        console.error('Error accessing Firebase:', error);
+        console.error('[Blog] Error accessing Firebase:', error);
         postsContainer.innerHTML = `
             <div class="loading-posts">
                 <p style="color: #e74c3c;">Error accessing server. Please refresh the page.</p>
+                <p style="color: #999; font-size: 0.8rem;">Error: ${error.message}</p>
             </div>
         `;
     }
@@ -180,42 +184,16 @@ function displayPosts() {
     postsContainer.innerHTML = postsHTML;
     console.log('[Blog] Posts rendered successfully');
 
-    // Increment views for all posts (only ONCE when page first loads)
-    if (!viewsAlreadyIncremented) {
-        console.log('[Blog] Incrementing views (first time only)...');
-        viewsAlreadyIncremented = true;
-
-        // Use setTimeout to increment views AFTER rendering, to avoid blocking
-        setTimeout(() => {
-            allPosts.forEach(post => {
-                incrementViewIfNeeded(post.id);
-            });
-            console.log('[Blog] View increment complete');
-        }, 500);
-    } else {
-        console.log('[Blog] Views already incremented, skipping');
-    }
+    // DISABLED: View increment temporarily disabled to prevent any Firebase writes
+    // that could trigger loops. Blog is now READ-ONLY.
+    console.log('[Blog] View increment disabled (read-only mode)');
 }
 
 function toggleLike(postId) {
-    if (!window.firebaseDB) return;
-
-    const hasLiked = hasUserLikedPost(postId);
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
-
-    const postRef = window.firebaseDB.ref(`posts/${postId}`);
-    const currentLikes = post.likes || 0;
-
-    if (hasLiked) {
-        // Unlike - update local state first to prevent re-triggering
-        removeUserLike(postId);
-        postRef.update({ likes: Math.max(0, currentLikes - 1) });
-    } else {
-        // Like - update local state first to prevent re-triggering
-        addUserLike(postId);
-        postRef.update({ likes: currentLikes + 1 });
-    }
+    // DISABLED: Like functionality temporarily disabled to prevent Firebase writes
+    // Blog is in READ-ONLY mode to prevent infinite loops
+    console.log('[Blog] Like feature disabled (read-only mode)');
+    return;
 }
 
 function incrementViewIfNeeded(postId) {
