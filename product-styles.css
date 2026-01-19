@@ -380,14 +380,21 @@
 
     .product-hero-title {
         font-size: 2.25rem;
+        padding: 0 1rem;
     }
 
     .product-hero-subtitle {
         font-size: 1rem;
+        padding: 0 1rem;
     }
 
     .product-hero-price {
         font-size: 2rem;
+    }
+
+    .product-badge-hero {
+        font-size: 0.7rem;
+        padding: 0.4rem 1.25rem;
     }
 
     /* Showcase - Stack vertically on mobile */
@@ -395,7 +402,11 @@
         flex-direction: column !important;
         gap: 2rem;
         margin-bottom: 3rem;
-        padding: 2rem;
+        padding: 2rem 1.5rem;
+    }
+
+    .showcase-item:hover {
+        transform: translateY(-4px) scale(1);
     }
 
     .showcase-left,
@@ -416,6 +427,10 @@
         order: 2;
     }
 
+    .showcase-image:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+
     .showcase-title {
         font-size: 1.5rem;
         text-align: center;
@@ -424,6 +439,7 @@
     .showcase-description {
         font-size: 0.95rem;
         text-align: center;
+        line-height: 1.7;
     }
 
     .showcase-features {
@@ -432,11 +448,16 @@
 
     .showcase-features li {
         font-size: 0.9rem;
+        padding: 0.75rem 0;
     }
 
     /* Order Box */
     .order-box {
         padding: 3rem 2rem;
+    }
+
+    .order-box:hover {
+        transform: translateY(-4px);
     }
 
     .order-title {
@@ -445,6 +466,7 @@
 
     .order-subtitle {
         font-size: 0.95rem;
+        line-height: 1.6;
     }
 
     .price-value {
@@ -452,9 +474,10 @@
     }
 
     .btn-order {
-        padding: 1.125rem 3rem;
+        padding: 1.25rem 3rem;
         font-size: 0.95rem;
         width: 100%;
+        min-height: 54px;
     }
 }
 
@@ -465,10 +488,12 @@
 
     .product-hero-title {
         font-size: 1.875rem;
+        padding: 0 0.5rem;
     }
 
     .product-hero-subtitle {
         font-size: 0.95rem;
+        padding: 0 0.5rem;
     }
 
     .product-hero-price {
@@ -476,21 +501,31 @@
     }
 
     .product-badge-hero {
-        font-size: 0.7rem;
-        padding: 0.4rem 1.2rem;
+        font-size: 0.65rem;
+        padding: 0.4rem 1.15rem;
     }
 
     .showcase-item {
         margin-bottom: 2.5rem;
-        padding: 1.5rem;
+        padding: 1.5rem 1.25rem;
+    }
+
+    .showcase-item:hover {
+        transform: none;
+    }
+
+    .showcase-image:hover {
+        transform: none;
     }
 
     .showcase-title {
         font-size: 1.375rem;
+        line-height: 1.3;
     }
 
     .showcase-description {
         font-size: 0.9rem;
+        line-height: 1.6;
     }
 
     .showcase-features {
@@ -499,7 +534,8 @@
 
     .showcase-features li {
         font-size: 0.875rem;
-        padding: 0.75rem 0;
+        padding: 0.675rem 0;
+        gap: 0.75rem;
     }
 
     .showcase-features li:before {
@@ -509,15 +545,35 @@
     }
 
     .order-box {
-        padding: 2.5rem 1.5rem;
+        padding: 2.5rem 1.25rem;
+    }
+
+    .order-box:hover {
+        transform: translateY(-2px);
+    }
+
+    .order-badge {
+        font-size: 0.65rem;
+        padding: 0.4rem 1.25rem;
     }
 
     .order-title {
         font-size: 1.625rem;
+        line-height: 1.3;
     }
 
     .order-subtitle {
         font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 2.5rem;
+    }
+
+    .order-details {
+        gap: 1.75rem;
+    }
+
+    .price-label {
+        font-size: 0.8rem;
     }
 
     .price-value {
@@ -525,7 +581,58 @@
     }
 
     .btn-order {
-        padding: 1rem 2.5rem;
+        padding: 1.125rem 2.5rem;
         font-size: 0.9rem;
+        min-height: 54px;
+        width: 100%;
+    }
+}
+
+/* ==================== */
+/* MOBILE ENHANCEMENTS */
+/* ==================== */
+
+/* Very small devices optimizations */
+@media (max-width: 375px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+
+    .product-hero-title {
+        font-size: 1.75rem;
+    }
+
+    .showcase-item {
+        padding: 1.25rem 1rem;
+    }
+
+    .showcase-title {
+        font-size: 1.25rem;
+    }
+
+    .order-box {
+        padding: 2rem 1rem;
+    }
+
+    .order-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-order {
+        padding: 1rem 2rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 896px) and (orientation: landscape) {
+    .product-hero {
+        min-height: 60vh;
+        padding: 6rem 0 2rem;
+    }
+
+    .showcase-item {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
     }
 }
