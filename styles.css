@@ -967,29 +967,19 @@ section {
 }
 
 /* ==================== */
-/* SERVICES CAROUSEL */
+/* SERVICES GRID */
 /* ==================== */
 .services {
     background: var(--primary-black);
     padding: 6rem 0 8rem;
 }
 
-.carousel-container {
-    position: relative;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 2rem 0;
-}
-
-.carousel {
-    overflow: visible;
-}
-
-.carousel-track {
+.services-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 100%;
+    margin: 2rem 0;
 }
 
 .service-card {
@@ -1122,66 +1112,6 @@ section {
 .btn-service:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
-}
-
-.carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, var(--primary-blue), #0052cc);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-speed);
-    z-index: 10;
-    box-shadow: var(--shadow-primary);
-}
-
-.carousel-btn:hover {
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 10px 40px rgba(0, 102, 255, 0.5);
-}
-
-.carousel-btn svg {
-    width: 24px;
-    height: 24px;
-    color: var(--primary-white);
-}
-
-.carousel-btn-prev {
-    left: -25px;
-}
-
-.carousel-btn-next {
-    right: -25px;
-}
-
-.carousel-indicators {
-    display: none;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-speed);
-}
-
-.indicator.active {
-    background: var(--primary-blue);
-    width: 40px;
-    border-radius: 6px;
 }
 
 /* ==================== */
@@ -1411,22 +1341,14 @@ section {
 /* RESPONSIVE DESIGN */
 /* ==================== */
 @media (max-width: 1200px) {
-    .carousel-track {
+    .services-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
-    }
-
-    .carousel-container {
-        overflow: hidden;
-    }
-
-    .carousel {
-        overflow: hidden;
     }
 }
 
 @media (max-width: 1024px) {
-    .carousel-track {
+    .services-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
@@ -1434,14 +1356,6 @@ section {
     .service-card {
         min-width: auto;
         flex-shrink: 1;
-    }
-
-    .carousel-btn {
-        display: none;
-    }
-
-    .carousel-indicators {
-        display: none;
     }
 
     /* Make How We Work vertical on mobile */
@@ -1456,7 +1370,7 @@ section {
 }
 
 @media (max-width: 768px) {
-    .carousel-track {
+    .services-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
@@ -1589,19 +1503,6 @@ section {
         top: 1rem;
         right: 1rem;
         font-size: 0.75rem;
-    }
-
-    .carousel-btn {
-        width: 40px;
-        height: 40px;
-    }
-
-    .carousel-btn-prev {
-        left: 0;
-    }
-
-    .carousel-btn-next {
-        right: 0;
     }
 
     .footer-content {
