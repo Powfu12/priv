@@ -2,6 +2,7 @@
 let allPosts = [];
 let firebaseCheckAttempts = 0;
 const MAX_FIREBASE_CHECK_ATTEMPTS = 10;
+let viewsAlreadyIncremented = false; // Prevent view increment loop
 
 // Load posts when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -179,12 +180,21 @@ function displayPosts() {
     postsContainer.innerHTML = postsHTML;
     console.log('[Blog] Posts rendered successfully');
 
-    // Increment views for all posts (only once per session)
-    console.log('[Blog] Incrementing views...');
-    allPosts.forEach(post => {
-        incrementViewIfNeeded(post.id);
-    });
-    console.log('[Blog] View increment complete');
+    // Increment views for all posts (only ONCE when page first loads)
+    if (!viewsAlreadyIncremented) {
+        console.log('[Blog] Incrementing views (first time only)...');
+        viewsAlreadyIncremented = true;
+
+        // Use setTimeout to increment views AFTER rendering, to avoid blocking
+        setTimeout(() => {
+            allPosts.forEach(post => {
+                incrementViewIfNeeded(post.id);
+            });
+            console.log('[Blog] View increment complete');
+        }, 500);
+    } else {
+        console.log('[Blog] Views already incremented, skipping');
+    }
 }
 
 function toggleLike(postId) {
