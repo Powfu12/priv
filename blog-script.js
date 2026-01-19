@@ -73,22 +73,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeBlog() {
+    console.log('[Blog] Initializing blog...');
+
+    // Check if we're on HTTP (problematic on mobile)
+    const isHTTP = window.location.protocol === 'http:';
+    const isLocalhost = window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1';
+
+    if (isHTTP && !isLocalhost) {
+        console.error('[Blog] Page loaded over HTTP. Firebase may not work on mobile.');
+        const httpsUrl = window.location.href.replace('http://', 'https://');
+        showError(`
+            <p style="margin-bottom: 1rem;">This page requires HTTPS to load posts on mobile devices.</p>
+            <a href="${httpsUrl}"
+               style="display: inline-block; background: #0066ff; color: white; padding: 12px 24px;
+                      border-radius: 8px; text-decoration: none; font-weight: bold;">
+                Switch to HTTPS
+            </a>
+        `);
+        return;
+    }
+
     // Wait for Firebase to be ready
     if (!window.firebaseDB) {
+        console.log('[Blog] Waiting for Firebase to initialize...');
         let attempts = 0;
         const maxAttempts = 20;
 
         while (!window.firebaseDB && attempts < maxAttempts) {
             await new Promise(resolve => setTimeout(resolve, 200));
             attempts++;
+            console.log(`[Blog] Waiting for Firebase... attempt ${attempts}/${maxAttempts}`);
         }
 
         if (!window.firebaseDB) {
-            showError('Firebase failed to initialize. Please refresh the page.');
+            console.error('[Blog] Firebase failed to initialize after', maxAttempts, 'attempts');
+            showError('Unable to connect to the server. Please check your connection and refresh the page.');
             return;
         }
     }
 
+    console.log('[Blog] Firebase ready, loading posts...');
     loadPosts();
 }
 
