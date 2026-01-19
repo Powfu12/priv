@@ -171,13 +171,13 @@ function toggleLike(postId) {
     const currentLikes = post.likes || 0;
 
     if (hasLiked) {
-        // Unlike
-        postRef.update({ likes: Math.max(0, currentLikes - 1) });
+        // Unlike - update local state first to prevent re-triggering
         removeUserLike(postId);
+        postRef.update({ likes: Math.max(0, currentLikes - 1) });
     } else {
-        // Like
-        postRef.update({ likes: currentLikes + 1 });
+        // Like - update local state first to prevent re-triggering
         addUserLike(postId);
+        postRef.update({ likes: currentLikes + 1 });
     }
 }
 
@@ -188,14 +188,17 @@ function incrementViewIfNeeded(postId) {
     const viewedPosts = getViewedPosts();
     if (viewedPosts.includes(postId)) return;
 
+    // Mark as viewed FIRST to prevent infinite loop when Firebase listener re-fires
+    addViewedPost(postId);
+
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
     const postRef = window.firebaseDB.ref(`posts/${postId}`);
     const currentViews = post.views || 0;
 
+    // Update Firebase - this will trigger the listener again, but we've already marked it as viewed
     postRef.update({ views: currentViews + 1 });
-    addViewedPost(postId);
 }
 
 // Local storage helpers for likes
