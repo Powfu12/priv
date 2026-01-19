@@ -1,190 +1,167 @@
-// Admin Panel JavaScript
+// Admin Panel JavaScript - Mobile-First Design
 let allOrders = [];
 let filteredOrders = [];
 let currentFilter = 'all';
+let currentTab = 'orders';
 
-// Load orders when page loads
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadOrders();
+    initializeEventListeners();
 });
 
-function loadOrders() {
-    const ordersContainer = document.getElementById('ordersContainer');
+function initializeEventListeners() {
+    // Close modal when clicking outside
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
 
-    if (!ordersContainer) {
-        console.error('Orders container element not found');
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.querySelector('.menu-toggle');
+
+        if (sidebar && sidebar.classList.contains('active') &&
+            !sidebar.contains(e.target) &&
+            !menuToggle.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
+
+// Toggle mobile sidebar
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
+
+// Switch between tabs
+function switchTab(tabName) {
+    currentTab = tabName;
+
+    // Update nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-tab') === tabName) {
+            item.classList.add('active');
+        }
+    });
+
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    const activeTab = document.getElementById(tabName + 'Tab');
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    // Close mobile sidebar after selection
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar && window.innerWidth < 768) {
+        sidebar.classList.remove('active');
+    }
+
+    // Load analytics if switching to analytics tab
+    if (tabName === 'analytics') {
+        generateAnalytics();
+    }
+}
+
+// Load orders from Firebase
+function loadOrders() {
+    const tableBody = document.getElementById('ordersTableBody');
+
+    if (!tableBody) {
+        console.error('Orders table body not found');
         return;
     }
 
-    ordersContainer.innerHTML = `
-        <div class="loading-state">
-            <div class="loading-spinner"></div>
-            <p>Loading orders...</p>
-        </div>
+    // Show loading state
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="7" class="loading-cell">
+                <div class="spinner"></div>
+                <p>Loading orders...</p>
+            </td>
+        </tr>
     `;
 
     // Check if Firebase is initialized
     if (!window.firebaseDB) {
-        ordersContainer.innerHTML = `
-            <div class="empty-state">
-                <svg fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                </svg>
-                <p>Firebase is not configured. Please check your firebase-config.js file.</p>
-            </div>
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="loading-cell">
+                    <p style="color: var(--danger);">Firebase is not configured</p>
+                </td>
+            </tr>
         `;
         return;
     }
 
     try {
-        // Load orders from Firebase
         const ordersRef = window.firebaseDB.ref('orders');
 
-        ordersRef.once('value')
-            .then((snapshot) => {
-                allOrders = [];
+        ordersRef.on('value', (snapshot) => {
+            allOrders = [];
 
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const order = childSnapshot.val();
-                        order.id = childSnapshot.key;
-                        allOrders.push(order);
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const order = childSnapshot.val();
+                    order.id = childSnapshot.key;
+                    allOrders.push(order);
+                });
 
-                        // Debug: Log order structure
-                        console.log('Loaded order:', order);
-                    });
+                // Sort by timestamp (newest first)
+                allOrders.sort((a, b) => {
+                    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                    return timeB - timeA;
+                });
+            }
 
-                    // Sort by timestamp (newest first)
-                    allOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                }
-
-                filteredOrders = [...allOrders];
-                displayOrders();
-                updateStats();
-            })
-            .catch((error) => {
-                console.error('Error loading orders:', error);
-                ordersContainer.innerHTML = `
-                    <div class="empty-state">
-                        <svg fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                        </svg>
-                        <p>Error loading orders. Check console for details.</p>
-                    </div>
-                `;
-            });
+            // Apply current filter
+            filterOrders(currentFilter);
+            updateStats();
+        }, (error) => {
+            console.error('Error loading orders:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading-cell">
+                        <p style="color: var(--danger);">Error loading orders</p>
+                    </td>
+                </tr>
+            `;
+        });
     } catch (error) {
         console.error('Error accessing Firebase:', error);
-        ordersContainer.innerHTML = `
-            <div class="empty-state">
-                <svg fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                </svg>
-                <p>Error accessing Firebase. Check your configuration.</p>
-            </div>
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="loading-cell">
+                    <p style="color: var(--danger);">Error accessing Firebase</p>
+                </td>
+            </tr>
         `;
     }
 }
 
-function displayOrders() {
-    const ordersContainer = document.getElementById('ordersContainer');
-    const ordersCount = document.getElementById('ordersCount');
-
-    if (!ordersContainer) {
-        console.error('Orders container element not found');
-        return;
-    }
-
-    if (ordersCount) {
-        ordersCount.textContent = `${filteredOrders.length} ${filteredOrders.length === 1 ? 'order' : 'orders'}`;
-    }
-
-    if (filteredOrders.length === 0) {
-        ordersContainer.innerHTML = `
-            <div class="empty-state">
-                <svg fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5z"/>
-                </svg>
-                <p>No orders found.</p>
-            </div>
-        `;
-        return;
-    }
-
-    const cardsHTML = filteredOrders.map(order => {
-        const statusClass = order.status || 'pending';
-        const packageName = order.package?.name || 'N/A';
-        const customerName = order.personalInfo?.fullName || 'N/A';
-        const customerEmail = order.personalInfo?.email || 'N/A';
-        const total = order.payment?.total ? `€${order.payment.total.toFixed(2)}` : '€0.00';
-        const timestamp = order.timestamp ? formatDate(order.timestamp) : 'N/A';
-        const timeAgo = order.timestamp ? getTimeAgo(order.timestamp) : 'N/A';
-
-        return `
-            <div class="order-card" onclick="viewOrder('${order.id}')">
-                <div class="order-card-header">
-                    <div class="order-code">${order.orderCode || 'N/A'}</div>
-                    <div class="order-status ${statusClass}">${statusClass}</div>
-                </div>
-                <div class="order-card-info">
-                    <div class="order-info-item">
-                        <div class="order-info-label">Customer</div>
-                        <div class="order-info-value">${customerName}</div>
-                    </div>
-                    <div class="order-info-item">
-                        <div class="order-info-label">Email</div>
-                        <div class="order-info-value">${customerEmail}</div>
-                    </div>
-                    <div class="order-info-item">
-                        <div class="order-info-label">Package</div>
-                        <div class="order-info-value">${packageName}</div>
-                    </div>
-                    <div class="order-info-item">
-                        <div class="order-info-label">Total</div>
-                        <div class="order-info-value">${total}</div>
-                    </div>
-                </div>
-                <div class="order-card-footer">
-                    <div class="order-time">${timeAgo}</div>
-                    <div class="order-actions">
-                        <button class="btn-status ${statusClass}" onclick="event.stopPropagation(); changeStatus('${order.id}', '${statusClass}')">
-                            ${statusClass === 'pending' ? 'Mark Complete' : statusClass === 'completed' ? 'Completed ✓' : 'Canceled'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    ordersContainer.innerHTML = cardsHTML;
-}
-
-function updateStats() {
-    const totalOrders = allOrders.length;
-    const pendingOrders = allOrders.filter(order => order.status === 'pending').length;
-    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.payment?.total || 0), 0);
-
-    // Safely update stats with null checks
-    const totalOrdersEl = document.getElementById('totalOrders');
-    const pendingOrdersEl = document.getElementById('pendingOrders');
-    const totalRevenueEl = document.getElementById('totalRevenue');
-
-    if (totalOrdersEl) totalOrdersEl.textContent = totalOrders;
-    if (pendingOrdersEl) pendingOrdersEl.textContent = pendingOrders;
-    if (totalRevenueEl) totalRevenueEl.textContent = `€${totalRevenue.toFixed(2)}`;
-}
-
-function filterByStatus(status) {
+// Filter orders by status
+function filterOrders(status) {
     currentFilter = status;
 
-    // Update active tab
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.getAttribute('data-status') === status) {
-            tab.classList.add('active');
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-filter') === status) {
+            btn.classList.add('active');
         }
     });
 
@@ -198,135 +175,264 @@ function filterByStatus(status) {
     displayOrders();
 }
 
-function changeStatus(orderId, currentStatus) {
-    const order = allOrders.find(o => o.id === orderId);
-    if (!order) return;
-
-    let newStatus;
-    if (currentStatus === 'pending') {
-        newStatus = 'completed';
-    } else if (currentStatus === 'completed') {
-        newStatus = 'pending';
-    } else {
-        return; // Can't change canceled orders
-    }
-
-    updateOrderStatus(orderId, newStatus);
+// Display orders in both table and mobile cards
+function displayOrders() {
+    displayDesktopTable();
+    displayMobileCards();
 }
 
+// Display orders in desktop table
+function displayDesktopTable() {
+    const tableBody = document.getElementById('ordersTableBody');
+    if (!tableBody) return;
+
+    if (filteredOrders.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="loading-cell">
+                    <p>No orders found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const rows = filteredOrders.map(order => {
+        const orderCode = order.orderCode || 'N/A';
+        const customerName = order.personalInfo?.fullName || 'N/A';
+        const packageName = order.package?.name || 'N/A';
+        const total = order.payment?.total ? `€${order.payment.total.toFixed(2)}` : '€0.00';
+        const status = order.status || 'pending';
+        const date = order.timestamp ? formatDate(order.timestamp) : 'N/A';
+
+        return `
+            <tr>
+                <td><strong>${orderCode}</strong></td>
+                <td>${customerName}</td>
+                <td>${packageName}</td>
+                <td><strong>${total}</strong></td>
+                <td><span class="status-badge ${status}">${status}</span></td>
+                <td>${date}</td>
+                <td>
+                    <button class="action-btn primary" onclick="viewOrder('${order.id}')">View</button>
+                    <button class="action-btn danger" onclick="confirmDeleteOrder('${order.id}')">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    tableBody.innerHTML = rows;
+}
+
+// Display orders as mobile cards
+function displayMobileCards() {
+    // Remove existing mobile cards
+    const existingContainer = document.querySelector('.mobile-orders');
+    if (existingContainer) {
+        existingContainer.remove();
+    }
+
+    const tableContainer = document.querySelector('.table-container');
+    if (!tableContainer) return;
+
+    // Create mobile cards container
+    const mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-orders';
+
+    if (filteredOrders.length === 0) {
+        mobileContainer.innerHTML = `
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                <p>No orders found</p>
+            </div>
+        `;
+    } else {
+        const cards = filteredOrders.map(order => {
+            const orderCode = order.orderCode || 'N/A';
+            const customerName = order.personalInfo?.fullName || 'N/A';
+            const packageName = order.package?.name || 'N/A';
+            const total = order.payment?.total ? `€${order.payment.total.toFixed(2)}` : '€0.00';
+            const status = order.status || 'pending';
+            const date = order.timestamp ? formatDate(order.timestamp) : 'N/A';
+
+            return `
+                <div class="order-card-mobile">
+                    <div class="order-card-header-mobile">
+                        <div class="order-code-mobile">${orderCode}</div>
+                        <span class="status-badge ${status}">${status}</span>
+                    </div>
+                    <div class="order-info-mobile">
+                        <div class="info-item-mobile">
+                            <div class="info-label-mobile">Customer</div>
+                            <div class="info-value-mobile">${customerName}</div>
+                        </div>
+                        <div class="info-item-mobile">
+                            <div class="info-label-mobile">Package</div>
+                            <div class="info-value-mobile">${packageName}</div>
+                        </div>
+                        <div class="info-item-mobile">
+                            <div class="info-label-mobile">Amount</div>
+                            <div class="info-value-mobile"><strong>${total}</strong></div>
+                        </div>
+                        <div class="info-item-mobile">
+                            <div class="info-label-mobile">Date</div>
+                            <div class="info-value-mobile">${date}</div>
+                        </div>
+                    </div>
+                    <div class="order-actions-mobile">
+                        <button class="action-btn primary" onclick="viewOrder('${order.id}')">View Details</button>
+                        <button class="action-btn danger" onclick="confirmDeleteOrder('${order.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        mobileContainer.innerHTML = cards;
+    }
+
+    tableContainer.appendChild(mobileContainer);
+}
+
+// Update statistics
+function updateStats() {
+    const totalOrders = allOrders.length;
+    const pendingOrders = allOrders.filter(o => o.status === 'pending').length;
+    const completedOrders = allOrders.filter(o => o.status === 'completed').length;
+    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
+
+    const totalEl = document.getElementById('totalOrders');
+    const pendingEl = document.getElementById('pendingOrders');
+    const completedEl = document.getElementById('completedOrders');
+    const revenueEl = document.getElementById('totalRevenue');
+    const badgeEl = document.getElementById('ordersBadge');
+
+    if (totalEl) totalEl.textContent = totalOrders;
+    if (pendingEl) pendingEl.textContent = pendingOrders;
+    if (completedEl) completedEl.textContent = completedOrders;
+    if (revenueEl) revenueEl.textContent = `€${totalRevenue.toFixed(2)}`;
+    if (badgeEl) badgeEl.textContent = pendingOrders;
+}
+
+// View order details in modal
 function viewOrder(orderId) {
     const order = allOrders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Helper function to safely get nested values
+    const modalBody = document.getElementById('modalBody');
+    if (!modalBody) return;
+
+    const status = order.status || 'pending';
     const getValue = (obj, path, defaultValue = 'N/A') => {
         const value = path.split('.').reduce((acc, part) => acc?.[part], obj);
         return value !== undefined && value !== null && value !== '' ? value : defaultValue;
     };
 
-    const modalBody = document.getElementById('modalBody');
-    if (!modalBody) {
-        console.error('Modal body element not found');
-        return;
-    }
-
-    const statusClass = order.status || 'pending';
-
     modalBody.innerHTML = `
-        <div class="detail-section">
-            <div class="detail-section-title">Order Information</div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Order Code</div>
-                    <div class="detail-value">${getValue(order, 'orderCode')}</div>
+        <div style="display: grid; gap: 1.5rem;">
+            <!-- Order Information -->
+            <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Order Information</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Order Code</div>
+                        <div style="font-weight: 500;">${getValue(order, 'orderCode')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Date & Time</div>
+                        <div style="font-weight: 500;">${order.timestamp ? formatDateTime(order.timestamp) : 'N/A'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Status</div>
+                        <span class="status-badge ${status}">${status}</span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Date & Time</div>
-                    <div class="detail-value">${order.timestamp ? formatDateTime(order.timestamp) : 'N/A'}</div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'pending')" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: var(--warning);">Mark Pending</button>
+                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'completed')" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: var(--success);">Mark Completed</button>
+                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'canceled')" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger);">Mark Canceled</button>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value">
-                        <span class="order-status ${statusClass}">${statusClass}</span>
+            </div>
+
+            <!-- Customer Information -->
+            <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Customer Information</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Full Name</div>
+                        <div style="font-weight: 500;">${getValue(order, 'personalInfo.fullName')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Email</div>
+                        <div style="font-weight: 500;">${getValue(order, 'personalInfo.email')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Phone</div>
+                        <div style="font-weight: 500;">${getValue(order, 'personalInfo.phone')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Telegram</div>
+                        <div style="font-weight: 500;">${getValue(order, 'personalInfo.telegram')}</div>
                     </div>
                 </div>
             </div>
-            <div class="detail-status-actions">
-                <button class="btn-change-status pending" onclick="updateOrderStatus('${order.id}', 'pending')">Mark as Pending</button>
-                <button class="btn-change-status completed" onclick="updateOrderStatus('${order.id}', 'completed')">Mark as Completed</button>
-                <button class="btn-change-status canceled" onclick="updateOrderStatus('${order.id}', 'canceled')">Mark as Canceled</button>
-            </div>
-        </div>
 
-        <div class="detail-section">
-            <div class="detail-section-title">Customer Information</div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Full Name</div>
-                    <div class="detail-value">${getValue(order, 'personalInfo.fullName')}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Email</div>
-                    <div class="detail-value">${getValue(order, 'personalInfo.email')}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Phone</div>
-                    <div class="detail-value">${getValue(order, 'personalInfo.phone')}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Telegram</div>
-                    <div class="detail-value">${getValue(order, 'personalInfo.telegram')}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="detail-section-title">Package Details</div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Package</div>
-                    <div class="detail-value">${getValue(order, 'package.name')}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Price</div>
-                    <div class="detail-value">€${order?.package?.price ? order.package.price.toFixed(2) : '0.00'}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="detail-section-title">Shipping Information</div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Delivery Method</div>
-                    <div class="detail-value">${getValue(order, 'shipping.method', 'standard')} (€${order?.shipping?.methodPrice ? order.shipping.methodPrice.toFixed(2) : '0.00'})</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Delivery Type</div>
-                    <div class="detail-value">${getValue(order, 'shipping.type')}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Address</div>
-                    <div class="detail-value">
-                        ${getValue(order, 'shipping.address.street')}<br>
-                        ${getValue(order, 'shipping.address.city')}, ${getValue(order, 'shipping.address.postalCode')}<br>
-                        ${getValue(order, 'shipping.address.country')}
+            <!-- Package Details -->
+            <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Package Details</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Package</div>
+                        <div style="font-weight: 500;">${getValue(order, 'package.name')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Price</div>
+                        <div style="font-weight: 500;">€${order.package?.price ? order.package.price.toFixed(2) : '0.00'}</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="detail-section">
-            <div class="detail-section-title">Payment</div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Payment Method</div>
-                    <div class="detail-value">${getValue(order, 'payment.method')}</div>
+            <!-- Shipping Information -->
+            <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Shipping Information</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Delivery Method</div>
+                        <div style="font-weight: 500;">${getValue(order, 'shipping.method', 'standard')} (+€${order.shipping?.methodPrice ? order.shipping.methodPrice.toFixed(2) : '0.00'})</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Delivery Type</div>
+                        <div style="font-weight: 500;">${getValue(order, 'shipping.type')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Address</div>
+                        <div style="font-weight: 500;">
+                            ${getValue(order, 'shipping.address.street')}<br>
+                            ${getValue(order, 'shipping.address.city')}, ${getValue(order, 'shipping.address.postalCode')}<br>
+                            ${getValue(order, 'shipping.address.country')}
+                        </div>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">Total Amount</div>
-                    <div class="detail-value" style="font-size: 1.25rem; color: var(--primary-blue);">€${order?.payment?.total ? order.payment.total.toFixed(2) : '0.00'}</div>
+            </div>
+
+            <!-- Payment Information -->
+            <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Payment Information</h3>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Payment Method</div>
+                        <div style="font-weight: 500;">${getValue(order, 'payment.method')}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total Amount</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">€${order.payment?.total ? order.payment.total.toFixed(2) : '0.00'}</div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Delete Order -->
+            <div style="padding-top: 1rem; border-top: 1px solid var(--border);">
+                <button class="action-btn danger" onclick="confirmDeleteOrder('${order.id}')" style="width: 100%; justify-content: center; background: var(--danger); color: white;">
+                    Delete This Order
+                </button>
             </div>
         </div>
     `;
@@ -337,6 +443,7 @@ function viewOrder(orderId) {
     }
 }
 
+// Update order status
 function updateOrderStatus(orderId, newStatus) {
     if (!window.firebaseDB) {
         alert('Firebase is not configured');
@@ -346,14 +453,7 @@ function updateOrderStatus(orderId, newStatus) {
     const orderRef = window.firebaseDB.ref(`orders/${orderId}`);
     orderRef.update({ status: newStatus })
         .then(() => {
-            // Update local copy
-            const order = allOrders.find(o => o.id === orderId);
-            if (order) {
-                order.status = newStatus;
-            }
-
-            alert('Order status updated successfully');
-            loadOrders();
+            alert(`Order status updated to ${newStatus}`);
             closeModal();
         })
         .catch((error) => {
@@ -362,15 +462,249 @@ function updateOrderStatus(orderId, newStatus) {
         });
 }
 
-function closeModal(event) {
-    const modal = document.getElementById('orderModal');
-    if (!event || event.target.id === 'orderModal' || event.target.classList.contains('modal-close')) {
-        if (modal) {
-            modal.classList.remove('active');
-        }
+// Confirm delete order
+function confirmDeleteOrder(orderId) {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const orderCode = order.orderCode || 'this order';
+    const confirmed = confirm(`Are you sure you want to delete ${orderCode}? This action cannot be undone.`);
+
+    if (confirmed) {
+        deleteOrder(orderId);
     }
 }
 
+// Delete order
+function deleteOrder(orderId) {
+    if (!window.firebaseDB) {
+        alert('Firebase is not configured');
+        return;
+    }
+
+    const orderRef = window.firebaseDB.ref(`orders/${orderId}`);
+    orderRef.remove()
+        .then(() => {
+            alert('Order deleted successfully');
+            closeModal();
+        })
+        .catch((error) => {
+            console.error('Error deleting order:', error);
+            alert('Error deleting order');
+        });
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// Generate analytics
+function generateAnalytics() {
+    generateCountryChart();
+    generatePackageChart();
+    generatePaymentChart();
+    generateRevenueChart();
+}
+
+// Generate country distribution chart
+function generateCountryChart() {
+    const container = document.getElementById('countryChart');
+    if (!container) return;
+
+    // Count orders by country
+    const countryData = {};
+    allOrders.forEach(order => {
+        const country = order.shipping?.address?.country || 'Unknown';
+        countryData[country] = (countryData[country] || 0) + 1;
+    });
+
+    // Sort by count
+    const sortedCountries = Object.entries(countryData)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10); // Top 10 countries
+
+    if (sortedCountries.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No data available</p>';
+        return;
+    }
+
+    const maxCount = sortedCountries[0][1];
+
+    const html = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sortedCountries.map(([country, count]) => {
+                const percentage = (count / maxCount) * 100;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${country}</span>
+                            <span style="color: var(--text-secondary);">${count} orders</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${percentage}%; background: var(--primary); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Generate package distribution chart
+function generatePackageChart() {
+    const container = document.getElementById('packageChart');
+    if (!container) return;
+
+    // Count orders by package
+    const packageData = {};
+    allOrders.forEach(order => {
+        const packageName = order.package?.name || 'Unknown';
+        packageData[packageName] = (packageData[packageName] || 0) + 1;
+    });
+
+    const sortedPackages = Object.entries(packageData)
+        .sort((a, b) => b[1] - a[1]);
+
+    if (sortedPackages.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No data available</p>';
+        return;
+    }
+
+    const total = sortedPackages.reduce((sum, [, count]) => sum + count, 0);
+    const colors = ['var(--primary)', 'var(--success)', 'var(--warning)', 'var(--danger)', '#8b5cf6'];
+
+    const html = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sortedPackages.map(([packageName, count], index) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                const color = colors[index % colors.length];
+                return `
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${color}; flex-shrink: 0;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.875rem; font-weight: 500;">${packageName}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${count} orders (${percentage}%)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Generate payment methods chart
+function generatePaymentChart() {
+    const container = document.getElementById('paymentChart');
+    if (!container) return;
+
+    // Count orders by payment method
+    const paymentData = {};
+    allOrders.forEach(order => {
+        const method = order.payment?.method || 'Unknown';
+        paymentData[method] = (paymentData[method] || 0) + 1;
+    });
+
+    const sortedMethods = Object.entries(paymentData)
+        .sort((a, b) => b[1] - a[1]);
+
+    if (sortedMethods.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No data available</p>';
+        return;
+    }
+
+    const total = sortedMethods.reduce((sum, [, count]) => sum + count, 0);
+    const colors = ['var(--success)', 'var(--primary)', 'var(--warning)', '#8b5cf6'];
+
+    const html = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sortedMethods.map(([method, count], index) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                const color = colors[index % colors.length];
+                return `
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${color}; flex-shrink: 0;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.875rem; font-weight: 500;">${method}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${count} orders (${percentage}%)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Generate revenue trends chart
+function generateRevenueChart() {
+    const container = document.getElementById('revenueChart');
+    if (!container) return;
+
+    // Group orders by date
+    const revenueByDate = {};
+    allOrders.forEach(order => {
+        if (order.timestamp && order.payment?.total) {
+            const date = formatDate(order.timestamp);
+            revenueByDate[date] = (revenueByDate[date] || 0) + order.payment.total;
+        }
+    });
+
+    // Sort by date (last 30 days)
+    const sortedDates = Object.entries(revenueByDate)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .slice(-30);
+
+    if (sortedDates.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No data available</p>';
+        return;
+    }
+
+    const maxRevenue = Math.max(...sortedDates.map(([, revenue]) => revenue));
+    const totalRevenue = sortedDates.reduce((sum, [, revenue]) => sum + revenue, 0);
+    const avgRevenue = totalRevenue / sortedDates.length;
+
+    const html = `
+        <div style="margin-bottom: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total Revenue</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">€${totalRevenue.toFixed(2)}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Average Per Day</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">€${avgRevenue.toFixed(2)}</div>
+            </div>
+        </div>
+        <div style="display: grid; gap: 0.5rem; max-height: 300px; overflow-y: auto;">
+            ${sortedDates.reverse().slice(0, 15).map(([date, revenue]) => {
+                const percentage = (revenue / maxRevenue) * 100;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${date}</span>
+                            <span style="color: var(--primary); font-weight: 600;">€${revenue.toFixed(2)}</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${percentage}%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Date formatting functions
 function formatDate(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', {
@@ -391,30 +725,13 @@ function formatDateTime(timestamp) {
     });
 }
 
-function getTimeAgo(timestamp) {
-    const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
-
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-
-    return Math.floor(seconds) + " seconds ago";
-}
-
 // Make functions globally accessible
+window.toggleSidebar = toggleSidebar;
+window.switchTab = switchTab;
 window.loadOrders = loadOrders;
-window.filterByStatus = filterByStatus;
+window.filterOrders = filterOrders;
 window.viewOrder = viewOrder;
 window.updateOrderStatus = updateOrderStatus;
+window.confirmDeleteOrder = confirmDeleteOrder;
+window.deleteOrder = deleteOrder;
 window.closeModal = closeModal;
