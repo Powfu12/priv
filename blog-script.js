@@ -1,3 +1,68 @@
+// Mobile-safe storage wrapper with fallbacks for iOS Safari private mode
+const SafeStorage = {
+    // Check if storage is available
+    isAvailable(type) {
+        try {
+            const storage = window[type];
+            const testKey = '__storage_test__';
+            storage.setItem(testKey, 'test');
+            storage.removeItem(testKey);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    // In-memory fallback storage for when localStorage/sessionStorage fail
+    memoryStorage: {
+        local: {},
+        session: {}
+    },
+
+    // Get item with fallback
+    getItem(type, key) {
+        try {
+            if (this.isAvailable(type + 'Storage')) {
+                return window[type + 'Storage'].getItem(key);
+            }
+        } catch (e) {
+            console.warn(`${type}Storage.getItem failed:`, e);
+        }
+        // Fallback to in-memory storage
+        return this.memoryStorage[type][key] || null;
+    },
+
+    // Set item with fallback
+    setItem(type, key, value) {
+        try {
+            if (this.isAvailable(type + 'Storage')) {
+                window[type + 'Storage'].setItem(key, value);
+                return true;
+            }
+        } catch (e) {
+            console.warn(`${type}Storage.setItem failed:`, e);
+        }
+        // Fallback to in-memory storage
+        this.memoryStorage[type][key] = value;
+        return false;
+    },
+
+    // Remove item with fallback
+    removeItem(type, key) {
+        try {
+            if (this.isAvailable(type + 'Storage')) {
+                window[type + 'Storage'].removeItem(key);
+                return true;
+            }
+        } catch (e) {
+            console.warn(`${type}Storage.removeItem failed:`, e);
+        }
+        // Fallback to in-memory storage
+        delete this.memoryStorage[type][key];
+        return false;
+    }
+};
+
 // Blog Page JavaScript - Production Ready
 let allPosts = [];
 let hasLoadedOnce = false;
@@ -210,36 +275,65 @@ function toggleLike(postId) {
     }
 }
 
-// Local storage helpers for likes
+// Mobile-safe local storage helpers for likes
 function hasUserLikedPost(postId) {
-    const likes = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-    return likes.includes(postId);
+    try {
+        const data = SafeStorage.getItem('local', 'likedPosts');
+        const likes = data ? JSON.parse(data) : [];
+        return likes.includes(postId);
+    } catch (e) {
+        console.warn('Error reading liked posts:', e);
+        return false; // Safe fallback
+    }
 }
 
 function addUserLike(postId) {
-    const likes = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-    if (!likes.includes(postId)) {
-        likes.push(postId);
-        localStorage.setItem('likedPosts', JSON.stringify(likes));
+    try {
+        const data = SafeStorage.getItem('local', 'likedPosts');
+        const likes = data ? JSON.parse(data) : [];
+        if (!likes.includes(postId)) {
+            likes.push(postId);
+            SafeStorage.setItem('local', 'likedPosts', JSON.stringify(likes));
+        }
+    } catch (e) {
+        console.warn('Error adding like:', e);
+        // Fail silently - like functionality is not critical
     }
 }
 
 function removeUserLike(postId) {
-    const likes = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-    const filtered = likes.filter(id => id !== postId);
-    localStorage.setItem('likedPosts', JSON.stringify(filtered));
+    try {
+        const data = SafeStorage.getItem('local', 'likedPosts');
+        const likes = data ? JSON.parse(data) : [];
+        const filtered = likes.filter(id => id !== postId);
+        SafeStorage.setItem('local', 'likedPosts', JSON.stringify(filtered));
+    } catch (e) {
+        console.warn('Error removing like:', e);
+        // Fail silently - like functionality is not critical
+    }
 }
 
-// Session storage helpers for views
+// Mobile-safe session storage helpers for views
 function getViewedPosts() {
-    return JSON.parse(sessionStorage.getItem('viewedPosts') || '[]');
+    try {
+        const data = SafeStorage.getItem('session', 'viewedPosts');
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        console.warn('Error reading viewed posts:', e);
+        return []; // Safe fallback
+    }
 }
 
 function addViewedPost(postId) {
-    const viewed = getViewedPosts();
-    if (!viewed.includes(postId)) {
-        viewed.push(postId);
-        sessionStorage.setItem('viewedPosts', JSON.stringify(viewed));
+    try {
+        const viewed = getViewedPosts();
+        if (!viewed.includes(postId)) {
+            viewed.push(postId);
+            SafeStorage.setItem('session', 'viewedPosts', JSON.stringify(viewed));
+        }
+    } catch (e) {
+        console.warn('Error adding viewed post:', e);
+        // Fail silently - view tracking is not critical
     }
 }
 
