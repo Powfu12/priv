@@ -3,6 +3,8 @@ let allOrders = [];
 let filteredOrders = [];
 let currentFilter = 'all';
 let currentTab = 'orders';
+let allPosts = [];
+let currentPostId = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -73,6 +75,11 @@ function switchTab(tabName) {
     // Load analytics if switching to analytics tab
     if (tabName === 'analytics') {
         generateAnalytics();
+    }
+
+    // Load posts if switching to posts tab
+    if (tabName === 'posts') {
+        loadPosts();
     }
 }
 
@@ -725,6 +732,277 @@ function formatDateTime(timestamp) {
     });
 }
 
+// ==================== POSTS MANAGEMENT ====================
+
+// Load posts
+function loadPosts() {
+    const tableBody = document.getElementById('postsTableBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="6" class="loading-cell">
+                <div class="spinner"></div>
+                <p>Loading posts...</p>
+            </td>
+        </tr>
+    `;
+
+    if (!window.firebaseDB) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="loading-cell">
+                    <p style="color: var(--danger);">Firebase is not configured</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    try {
+        const postsRef = window.firebaseDB.ref('posts');
+
+        postsRef.on('value', (snapshot) => {
+            allPosts = [];
+
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const post = childSnapshot.val();
+                    post.id = childSnapshot.key;
+                    allPosts.push(post);
+                });
+
+                // Sort by timestamp (newest first)
+                allPosts.sort((a, b) => {
+                    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                    return timeB - timeA;
+                });
+            }
+
+            displayPosts();
+            updatePostsStats();
+        }, (error) => {
+            console.error('Error loading posts:', error);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="loading-cell">
+                        <p style="color: var(--danger);">Error loading posts</p>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        console.error('Error accessing Firebase:', error);
+    }
+}
+
+// Display posts
+function displayPosts() {
+    const tableBody = document.getElementById('postsTableBody');
+    if (!tableBody) return;
+
+    if (allPosts.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="loading-cell">
+                    <p>No posts yet. Create your first post!</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const rows = allPosts.map(post => {
+        const title = post.title || '(No title)';
+        const views = post.views || 0;
+        const likes = post.likes || 0;
+        const date = post.timestamp ? formatDate(post.timestamp) : 'N/A';
+        const published = post.published !== false;
+        const statusBadge = published
+            ? '<span class="status-badge completed">Published</span>'
+            : '<span class="status-badge pending">Draft</span>';
+
+        return `
+            <tr>
+                <td><strong>${escapeHtml(title)}</strong></td>
+                <td>${views}</td>
+                <td>${likes}</td>
+                <td>${date}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="action-btn primary" onclick="editPost('${post.id}')">Edit</button>
+                    <button class="action-btn danger" onclick="confirmDeletePost('${post.id}')">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    tableBody.innerHTML = rows;
+}
+
+// Update posts stats
+function updatePostsStats() {
+    const badgeEl = document.getElementById('postsBadge');
+    if (badgeEl) {
+        const publishedCount = allPosts.filter(p => p.published !== false).length;
+        badgeEl.textContent = publishedCount;
+    }
+}
+
+// Open create post modal
+function openCreatePostModal() {
+    currentPostId = null;
+    const modal = document.getElementById('postModal');
+    const modalTitle = document.getElementById('postModalTitle');
+    const form = document.getElementById('postForm');
+
+    if (modalTitle) modalTitle.textContent = 'Create New Post';
+    if (form) form.reset();
+
+    document.getElementById('postViews').value = '0';
+    document.getElementById('postLikes').value = '0';
+    document.getElementById('postPublished').checked = true;
+
+    if (modal) modal.classList.add('active');
+}
+
+// Edit post
+function editPost(postId) {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    currentPostId = postId;
+    const modal = document.getElementById('postModal');
+    const modalTitle = document.getElementById('postModalTitle');
+
+    if (modalTitle) modalTitle.textContent = 'Edit Post';
+
+    document.getElementById('postTitle').value = post.title || '';
+    document.getElementById('postContent').value = post.content || '';
+    document.getElementById('postViews').value = post.views || 0;
+    document.getElementById('postLikes').value = post.likes || 0;
+    document.getElementById('postPublished').checked = post.published !== false;
+
+    if (modal) modal.classList.add('active');
+}
+
+// Close post modal
+function closePostModal() {
+    const modal = document.getElementById('postModal');
+    if (modal) modal.classList.remove('active');
+    currentPostId = null;
+}
+
+// Save post
+document.addEventListener('DOMContentLoaded', function() {
+    const postForm = document.getElementById('postForm');
+    if (postForm) {
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            savePost();
+        });
+    }
+});
+
+function savePost() {
+    if (!window.firebaseDB) {
+        alert('Firebase is not configured');
+        return;
+    }
+
+    const title = document.getElementById('postTitle').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    const views = parseInt(document.getElementById('postViews').value) || 0;
+    const likes = parseInt(document.getElementById('postLikes').value) || 0;
+    const published = document.getElementById('postPublished').checked;
+
+    if (!content) {
+        alert('Content is required');
+        return;
+    }
+
+    const postData = {
+        title: title,
+        content: content,
+        views: views,
+        likes: likes,
+        published: published,
+        timestamp: currentPostId ?
+            (allPosts.find(p => p.id === currentPostId)?.timestamp || Date.now()) :
+            Date.now()
+    };
+
+    if (currentPostId) {
+        // Update existing post
+        const postRef = window.firebaseDB.ref(`posts/${currentPostId}`);
+        postRef.update(postData)
+            .then(() => {
+                alert('Post updated successfully');
+                closePostModal();
+            })
+            .catch((error) => {
+                console.error('Error updating post:', error);
+                alert('Error updating post');
+            });
+    } else {
+        // Create new post
+        const postsRef = window.firebaseDB.ref('posts');
+        postsRef.push(postData)
+            .then(() => {
+                alert('Post created successfully');
+                closePostModal();
+            })
+            .catch((error) => {
+                console.error('Error creating post:', error);
+                alert('Error creating post');
+            });
+    }
+}
+
+// Confirm delete post
+function confirmDeletePost(postId) {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const title = post.title || 'this post';
+    const confirmed = confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`);
+
+    if (confirmed) {
+        deletePost(postId);
+    }
+}
+
+// Delete post
+function deletePost(postId) {
+    if (!window.firebaseDB) {
+        alert('Firebase is not configured');
+        return;
+    }
+
+    const postRef = window.firebaseDB.ref(`posts/${postId}`);
+    postRef.remove()
+        .then(() => {
+            alert('Post deleted successfully');
+        })
+        .catch((error) => {
+            console.error('Error deleting post:', error);
+            alert('Error deleting post');
+        });
+}
+
+// Escape HTML helper
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 // Make functions globally accessible
 window.toggleSidebar = toggleSidebar;
 window.switchTab = switchTab;
@@ -735,3 +1013,9 @@ window.updateOrderStatus = updateOrderStatus;
 window.confirmDeleteOrder = confirmDeleteOrder;
 window.deleteOrder = deleteOrder;
 window.closeModal = closeModal;
+window.loadPosts = loadPosts;
+window.openCreatePostModal = openCreatePostModal;
+window.editPost = editPost;
+window.closePostModal = closePostModal;
+window.confirmDeletePost = confirmDeletePost;
+window.deletePost = deletePost;

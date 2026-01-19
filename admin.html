@@ -26,6 +26,13 @@
                     <span>Orders</span>
                     <span class="badge" id="ordersBadge">0</span>
                 </button>
+                <button class="nav-item" data-tab="posts" onclick="switchTab('posts')">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4.414a1 1 0 0 0-.707.293L.854 15.146A.5.5 0 0 1 0 14.793V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                    </svg>
+                    <span>Posts</span>
+                    <span class="badge" id="postsBadge" style="background: #10b981;">0</span>
+                </button>
                 <button class="nav-item" data-tab="analytics" onclick="switchTab('analytics')">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/>
@@ -142,6 +149,46 @@
                 </div>
             </div>
 
+            <!-- Posts Tab -->
+            <div id="postsTab" class="tab-content">
+                <h2 class="tab-title">Blog Posts Management</h2>
+
+                <!-- Create Post Button -->
+                <div class="filter-bar">
+                    <div></div>
+                    <button class="btn-primary" onclick="openCreatePostModal()">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        Create New Post
+                    </button>
+                </div>
+
+                <!-- Posts List -->
+                <div class="table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Views</th>
+                                <th>Likes</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-cell">
+                                    <div class="spinner"></div>
+                                    <p>Loading posts...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Analytics Tab -->
             <div id="analyticsTab" class="tab-content">
                 <h2 class="tab-title">Analytics & Insights</h2>
@@ -189,6 +236,65 @@
                 </button>
             </div>
             <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Post Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-overlay" onclick="closePostModal()"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title" id="postModalTitle">Create New Post</h2>
+                <button class="modal-close" onclick="closePostModal()">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="postForm" style="display: grid; gap: 1.25rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary);">
+                            Title (Optional)
+                        </label>
+                        <input type="text" id="postTitle" placeholder="Enter post title..." style="width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9375rem; font-family: inherit;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary);">
+                            Content *
+                        </label>
+                        <textarea id="postContent" rows="8" placeholder="Write your post content..." required style="width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9375rem; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary);">
+                                Views
+                            </label>
+                            <input type="number" id="postViews" value="0" min="0" style="width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9375rem; font-family: inherit;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-primary);">
+                                Likes
+                            </label>
+                            <input type="number" id="postLikes" value="0" min="0" style="width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9375rem; font-family: inherit;">
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <input type="checkbox" id="postPublished" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="postPublished" style="font-size: 0.9375rem; font-weight: 500; cursor: pointer;">
+                            Publish immediately
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <button type="button" class="action-btn" onclick="closePostModal()" style="flex: 1;">
+                            Cancel
+                        </button>
+                        <button type="submit" class="action-btn primary" style="flex: 1;">
+                            Save Post
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
