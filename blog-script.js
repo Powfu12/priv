@@ -1,10 +1,33 @@
 // Blog Page JavaScript
 let allPosts = [];
+let firebaseCheckAttempts = 0;
+const MAX_FIREBASE_CHECK_ATTEMPTS = 10;
 
 // Load posts when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    loadPosts();
+    waitForFirebaseAndLoadPosts();
 });
+
+function waitForFirebaseAndLoadPosts() {
+    if (window.firebaseDB) {
+        // Firebase is ready, load posts
+        loadPosts();
+    } else if (firebaseCheckAttempts < MAX_FIREBASE_CHECK_ATTEMPTS) {
+        // Firebase not ready yet, wait and try again
+        firebaseCheckAttempts++;
+        setTimeout(waitForFirebaseAndLoadPosts, 300);
+    } else {
+        // Firebase failed to initialize after multiple attempts
+        const postsContainer = document.getElementById('postsContainer');
+        if (postsContainer) {
+            postsContainer.innerHTML = `
+                <div class="loading-posts">
+                    <p style="color: #e74c3c;">Unable to connect to server. Please refresh the page.</p>
+                </div>
+            `;
+        }
+    }
+}
 
 function loadPosts() {
     const postsContainer = document.getElementById('postsContainer');
@@ -17,11 +40,7 @@ function loadPosts() {
 
     // Check if Firebase is initialized
     if (!window.firebaseDB) {
-        postsContainer.innerHTML = `
-            <div class="loading-posts">
-                <p style="color: #e74c3c;">Firebase is not configured</p>
-            </div>
-        `;
+        console.error('Firebase is not initialized');
         return;
     }
 
@@ -55,7 +74,7 @@ function loadPosts() {
             console.error('Error loading posts:', error);
             postsContainer.innerHTML = `
                 <div class="loading-posts">
-                    <p style="color: #e74c3c;">Error loading posts</p>
+                    <p style="color: #e74c3c;">Error loading posts. Please refresh the page.</p>
                 </div>
             `;
         });
@@ -63,7 +82,7 @@ function loadPosts() {
         console.error('Error accessing Firebase:', error);
         postsContainer.innerHTML = `
             <div class="loading-posts">
-                <p style="color: #e74c3c;">Error accessing Firebase</p>
+                <p style="color: #e74c3c;">Error accessing server. Please refresh the page.</p>
             </div>
         `;
     }
