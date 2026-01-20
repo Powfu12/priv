@@ -178,6 +178,12 @@ function completeOrder() {
         // Collect order data
         const orderData = collectOrderData(orderCode);
 
+        // Check if order data was collected successfully
+        if (!orderData) {
+            console.error('Failed to collect order data');
+            return;
+        }
+
         // Save to Firebase
         saveOrderToFirebase(orderData);
 
@@ -187,9 +193,33 @@ function completeOrder() {
 }
 
 function collectOrderData(orderCode) {
+    // Debug: Log all package inputs
+    const allPackageInputs = document.querySelectorAll('input[name="package"]');
+    console.log('All package inputs:', allPackageInputs);
+    console.log('Package prices available:', packagePrices);
+
     // Get selected package
-    const selectedPackage = document.querySelector('input[name="package"]:checked').value;
+    const selectedPackageInput = document.querySelector('input[name="package"]:checked');
+    console.log('Selected package input:', selectedPackageInput);
+
+    if (!selectedPackageInput) {
+        console.error('No package selected');
+        alert('Please select a package');
+        return null;
+    }
+
+    const selectedPackage = selectedPackageInput.value;
+    console.log('Selected package value:', selectedPackage);
+
     const packageInfo = packagePrices[selectedPackage];
+    console.log('Package info:', packageInfo);
+
+    if (!packageInfo) {
+        console.error('Invalid package selected:', selectedPackage);
+        console.error('Available packages:', Object.keys(packagePrices));
+        alert('Invalid package selected. Please refresh the page and try again.');
+        return null;
+    }
 
     // Get personal info
     const fullName = document.getElementById('fullName').value;
@@ -198,15 +228,30 @@ function collectOrderData(orderCode) {
     const telegram = document.getElementById('telegram').value;
 
     // Get shipping details
-    const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
-    const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+    const deliveryMethodInput = document.querySelector('input[name="deliveryMethod"]:checked');
+    const deliveryTypeInput = document.querySelector('input[name="deliveryType"]:checked');
+
+    if (!deliveryMethodInput || !deliveryTypeInput) {
+        console.error('Delivery options not selected');
+        alert('Please select delivery method and type');
+        return null;
+    }
+
+    const deliveryMethod = deliveryMethodInput.value;
+    const deliveryType = deliveryTypeInput.value;
     const streetAddress = document.getElementById('streetAddress').value;
     const city = document.getElementById('city').value;
     const postalCode = document.getElementById('postalCode').value;
     const country = document.getElementById('country').value;
 
     // Get payment method
-    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+    const paymentMethodInput = document.querySelector('input[name="payment"]:checked');
+    if (!paymentMethodInput) {
+        console.error('No payment method selected');
+        alert('Please select a payment method');
+        return null;
+    }
+    const paymentMethod = paymentMethodInput.value;
 
     // Calculate total
     const deliveryPrice = deliveryPrices[deliveryMethod];
