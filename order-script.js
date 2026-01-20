@@ -175,9 +175,99 @@ function completeOrder() {
         const orderCode = generateOrderCode();
         document.getElementById('orderCode').textContent = orderCode;
 
+        // Collect order data
+        const orderData = collectOrderData(orderCode);
+
+        // Save to Firebase
+        saveOrderToFirebase(orderData);
+
         // Show confirmation step
         showStep(5);
     }
+}
+
+function collectOrderData(orderCode) {
+    // Get selected package
+    const selectedPackage = document.querySelector('input[name="package"]:checked').value;
+    const packageInfo = packagePrices[selectedPackage];
+
+    // Get personal info
+    const fullName = document.getElementById('fullName').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
+    const telegram = document.getElementById('telegram').value;
+
+    // Get shipping details
+    const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
+    const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+    const streetAddress = document.getElementById('streetAddress').value;
+    const city = document.getElementById('city').value;
+    const postalCode = document.getElementById('postalCode').value;
+    const country = document.getElementById('country').value;
+
+    // Get payment method
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+    // Calculate total
+    const deliveryPrice = deliveryPrices[deliveryMethod];
+    const total = packageInfo.price + deliveryPrice;
+
+    // Create order object
+    return {
+        orderCode: orderCode,
+        timestamp: new Date().toISOString(),
+        status: 'pending',
+        personalInfo: {
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            telegram: telegram
+        },
+        package: {
+            name: packageInfo.name,
+            price: packageInfo.price
+        },
+        shipping: {
+            method: deliveryMethod,
+            methodPrice: deliveryPrice,
+            type: deliveryType,
+            address: {
+                street: streetAddress,
+                city: city,
+                postalCode: postalCode,
+                country: country
+            }
+        },
+        payment: {
+            method: paymentMethod,
+            total: total
+        }
+    };
+}
+
+function saveOrderToFirebase(orderData) {
+    // Check if Firebase is available
+    if (typeof firebase === 'undefined' || !firebase.database) {
+        console.error('Firebase is not initialized');
+        alert('Error: Unable to save order. Please try again or contact support.');
+        return;
+    }
+
+    const database = firebase.database();
+    const ordersRef = database.ref('orders');
+
+    // Generate unique order ID
+    const newOrderRef = ordersRef.push();
+
+    // Save order to Firebase
+    newOrderRef.set(orderData)
+        .then(() => {
+            console.log('Order saved successfully to Firebase');
+        })
+        .catch((error) => {
+            console.error('Error saving order to Firebase:', error);
+            alert('Error saving order. Please take a screenshot of your order code and contact support.');
+        });
 }
 
 function generateOrderCode() {
