@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Primeuro News - Stay updated with exclusive drops, announcements, and premium deals. Join our Telegram channel now.">
+    <meta name="keywords" content="Primeuro, news, updates, telegram, exclusive, deals, announcements">
+    <meta name="theme-color" content="#0066ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Open Graph / TikTok / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://primeuro.shop/news">
+    <meta property="og:title" content="Primeuro News - Exclusive Updates & Drops">
+    <meta property="og:description" content="Join 2,500+ members getting exclusive updates, early drops, and premium deals. Free to join.">
+    <meta property="og:image" content="https://primeuro.shop/logo.gif">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://primeuro.shop/news">
+    <meta name="twitter:title" content="Primeuro News - Exclusive Updates & Drops">
+    <meta name="twitter:description" content="Join 2,500+ members getting exclusive updates, early drops, and premium deals.">
+    <meta name="twitter:image" content="https://primeuro.shop/logo.gif">
+
+    <title>Primeuro News - Exclusive Telegram Channel</title>
+
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --primary-blue: #0066ff;
+            --primary-blue-dark: #0052cc;
+            --primary-blue-light: #3385ff;
+            --accent-gold: #ffd700;
+            --accent-gold-dark: #e6c200;
+            --telegram-blue: #0088cc;
+            --success-green: #10b981;
+            --bg-dark: #0a0d14;
+            --bg-dark-lighter: #13161f;
+            --bg-card: #1a1d28;
+            --text-white: #ffffff;
+            --text-gray: #9ca3af;
+            --text-gray-light: #d1d5db;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-color-hover: rgba(255, 255, 255, 0.2);
+            --shadow-glow: 0 0 40px rgba(0, 102, 255, 0.3);
+            --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --radius-sm: 0.5rem;
+            --radius-md: 1rem;
+            --radius-lg: 1.5rem;
+            --radius-xl: 2rem;
+        }
+
+        /* ===== Reset ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* ===== Animated Background ===== */
+        .bg-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--primary-blue) 0%, transparent 70%);
+            top: -15%;
+            right: -10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+            bottom: -15%;
+            left: -10%;
+            animation-delay: 4s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--telegram-blue) 0%, transparent 70%);
+            top: 40%;
+            left: 30%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(0, 102, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 102, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* ===== Header ===== */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-blue-light), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-gray-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-color-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ===== Main Container ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* ===== Hero Section ===== */
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2),
+                        0 0 60px rgba(0, 102, 255, 0.4);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2),
+                            0 0 60px rgba(0, 102, 255, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(0, 102, 255, 0.3),
+                            0 0 80px rgba(0, 102, 255, 0.6);
+            }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.15), rgba(255, 215, 0, 0.15));
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .badge i {
+            color: var(--accent-gold);
+            font-size: 1rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-white) 0%, var(--text-gray-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* ===== Stats ===== */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-color-hover);
+            transform: translateY(-4px);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-blue-light), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        /* ===== CTA Button ===== */
+        .cta-primary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, var(--telegram-blue), #0066cc);
+            color: var(--text-white);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 1.125rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 136, 204, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2));
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .cta-primary:hover::before {
+            transform: translateX(100%);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 50px rgba(0, 136, 204, 0.6);
+        }
+
+        .cta-primary:active {
+            transform: translateY(-2px);
+        }
+
+        .cta-icon {
+            font-size: 1.5rem;
+        }
+
+        /* ===== Features ===== */
+        .features {
+            margin-top: 3rem;
+        }
+
+        .features-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-white);
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-color-hover);
+            transform: translateX(8px);
+        }
+
+        .feature-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.2), rgba(0, 136, 204, 0.2));
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1.25rem;
+            color: var(--primary-blue-light);
+        }
+
+        .feature-content h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--text-white);
+        }
+
+        .feature-content p {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+
+        /* ===== Social Proof ===== */
+        .social-proof {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .social-proof-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .checkmark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--success-green);
+            border-radius: 50%;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .social-proof-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .member-count {
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            position: relative;
+            z-index: 1;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .footer-text {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-blue-light);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .logo-text {
+                font-size: 1.25rem;
+            }
+
+            .back-link {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .container {
+                padding: 0 1rem 2rem;
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .stats {
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1.25rem 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .cta-primary {
+                padding: 1.125rem 1.75rem;
+                font-size: 1rem;
+            }
+
+            .features-title {
+                font-size: 1.25rem;
+            }
+
+            .feature-item {
+                padding: 1rem;
+            }
+
+            .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.125rem;
+            }
+
+            .feature-content h3 {
+                font-size: 1rem;
+            }
+
+            .feature-content p {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 1rem;
+                text-align: left;
+                align-items: center;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== Accessibility ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== Selection ===== */
+        ::selection {
+            background: var(--primary-blue);
+            color: var(--text-white);
+        }
+
+        ::-moz-selection {
+            background: var(--primary-blue);
+            color: var(--text-white);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-wrapper">
+        <div class="grid-pattern"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-text">PRIMEURO</div>
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+        </a>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <div class="logo-container">
+                <img src="logo.gif" alt="Primeuro News" class="logo">
+            </div>
+
+            <div class="badge">
+                <i class="fas fa-bolt"></i>
+                <span>EXCLUSIVE CHANNEL</span>
+            </div>
+
+            <h1 class="hero-title">Primeuro News</h1>
+            <p class="hero-subtitle">
+                Get instant updates on exclusive drops, special deals, and important announcements. Never miss out again.
+            </p>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="stat-value">2.5K+</span>
+                    <span class="stat-label">Members</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">24/7</span>
+                    <span class="stat-label">Updates</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Free</span>
+                </div>
+            </div>
+
+            <!-- Primary CTA -->
+            <a href="https://t.me/primeuromain" class="cta-primary" id="joinBtn">
+                <i class="fab fa-telegram-plane cta-icon"></i>
+                <span>Join Channel Now</span>
+            </a>
+
+            <!-- Social Proof -->
+            <div class="social-proof">
+                <div class="social-proof-content">
+                    <div class="checkmark">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <p class="social-proof-text">
+                        <span class="member-count">2,500+</span> members already subscribed
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <h2 class="features-title">What You'll Get</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Instant Notifications</h3>
+                        <p>Be the first to know about new drops and exclusive deals before they sell out</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Exclusive Offers</h3>
+                        <p>Access members-only discounts and special promotions not available elsewhere</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Verified Updates</h3>
+                        <p>Only official announcements from Primeuro, no spam or fake information</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Priority Support</h3>
+                        <p>Get faster responses and priority access to our support team</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 Primeuro. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="https://primeuro.shop" class="footer-link">Main Website</a>
+            <a href="https://primeuro.shop/reviews.html" class="footer-link">Reviews</a>
+            <a href="https://primeuro.shop/blog.html" class="footer-link">Blog</a>
+        </div>
+    </footer>
+
+    <script>
+        'use strict';
+
+        // Track button clicks for analytics
+        document.getElementById('joinBtn').addEventListener('click', function() {
+            console.log('Join Channel button clicked');
+            // Add your analytics tracking here if needed
+        });
+
+        // Animate stats on scroll
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-card, .feature-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+
+        // Add hover effect sound (optional)
+        document.querySelectorAll('.cta-primary, .feature-item, .stat-card').forEach(el => {
+            el.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+        });
+
+        console.log('🚀 Primeuro News page loaded successfully');
+    </script>
+</body>
+</html>
