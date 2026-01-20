@@ -41,25 +41,24 @@
         :root {
             --primary-blue: #0066ff;
             --primary-blue-dark: #0052cc;
-            --primary-blue-light: #3385ff;
             --accent-gold: #ffd700;
             --accent-gold-dark: #e6c200;
             --telegram-blue: #0088cc;
             --success-green: #10b981;
-            --bg-dark: #0a0d14;
-            --bg-dark-lighter: #13161f;
-            --bg-card: #1a1d28;
+            --bg-dark: #000000;
+            --bg-dark-lighter: #1a1a1a;
+            --bg-card: #2a2a2a;
             --text-white: #ffffff;
-            --text-gray: #9ca3af;
-            --text-gray-light: #d1d5db;
+            --text-gray: #b0b0b0;
+            --text-gray-light: #e0e0e0;
             --border-color: rgba(255, 255, 255, 0.1);
             --border-color-hover: rgba(255, 255, 255, 0.2);
-            --shadow-glow: 0 0 40px rgba(0, 102, 255, 0.3);
+            --shadow-glow: 0 0 40px rgba(0, 102, 255, 0.4);
             --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.5);
             --radius-sm: 0.5rem;
-            --radius-md: 1rem;
-            --radius-lg: 1.5rem;
-            --radius-xl: 2rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
         }
 
         /* ===== Reset ===== */
@@ -299,58 +298,21 @@
             font-weight: 500;
         }
 
-        /* ===== Stats ===== */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        /* ===== Action Buttons ===== */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 1.5rem 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--border-color-hover);
-            transform: translateY(-4px);
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-blue-light), var(--accent-gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-gray);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        /* ===== CTA Button ===== */
-        .cta-primary {
+        .action-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
             width: 100%;
             padding: 1.25rem 2rem;
-            background: linear-gradient(135deg, var(--telegram-blue), #0066cc);
             color: var(--text-white);
             border: none;
             border-radius: var(--radius-lg);
@@ -358,36 +320,150 @@
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(0, 136, 204, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .cta-primary::before {
+        .action-btn::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2));
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.15));
             transform: translateX(-100%);
             transition: transform 0.5s ease;
         }
 
-        .cta-primary:hover::before {
+        .action-btn:hover::before {
             transform: translateX(100%);
         }
 
-        .cta-primary:hover {
-            transform: translateY(-4px);
+        .action-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .action-btn:active {
+            transform: translateY(-2px) scale(1);
+        }
+
+        .btn-news {
+            background: linear-gradient(135deg, var(--telegram-blue), #0066cc);
+            box-shadow: 0 10px 40px rgba(0, 136, 204, 0.4);
+        }
+
+        .btn-news:hover {
             box-shadow: 0 15px 50px rgba(0, 136, 204, 0.6);
         }
 
-        .cta-primary:active {
-            transform: translateY(-2px);
+        .btn-buy {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            box-shadow: 0 10px 40px rgba(0, 102, 255, 0.4);
         }
 
-        .cta-icon {
+        .btn-buy:hover {
+            box-shadow: 0 15px 50px rgba(0, 102, 255, 0.6);
+        }
+
+        .btn-reviews {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
+            color: #000000;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-reviews:hover {
+            box-shadow: 0 15px 50px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-icon {
             font-size: 1.5rem;
+        }
+
+        /* ===== Rating & Badges ===== */
+        .rating-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .rating-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stars {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .star {
+            color: var(--accent-gold);
+            font-size: 1.125rem;
+            filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+        }
+
+        .rating-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-white), var(--text-gray-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rating-count {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .badges {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            border-radius: var(--radius-xl);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-gray-light);
+        }
+
+        .badge-icon {
+            color: var(--primary-blue);
+            font-size: 1rem;
+        }
+
+        .badge-item.gold {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .badge-item.gold .badge-icon {
+            color: var(--accent-gold);
+        }
+
+        .badge-item.green {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-item.green .badge-icon {
+            color: var(--success-green);
         }
 
         /* ===== Features ===== */
@@ -561,25 +637,23 @@
                 height: 100px;
             }
 
-            .stats {
-                gap: 0.75rem;
-            }
-
-            .stat-card {
-                padding: 1.25rem 0.75rem;
-            }
-
-            .stat-value {
-                font-size: 1.75rem;
-            }
-
-            .stat-label {
-                font-size: 0.7rem;
-            }
-
-            .cta-primary {
+            .action-btn {
                 padding: 1.125rem 1.75rem;
                 font-size: 1rem;
+            }
+
+            .btn-icon {
+                font-size: 1.25rem;
+            }
+
+            .rating-section {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.25rem;
+            }
+
+            .rating-value {
+                font-size: 1.25rem;
             }
 
             .features-title {
@@ -610,21 +684,23 @@
                 font-size: 2rem;
             }
 
-            .stats {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
+            .action-btn {
+                padding: 1rem 1.5rem;
+                font-size: 0.95rem;
             }
 
-            .stat-card {
-                display: grid;
-                grid-template-columns: auto 1fr;
-                gap: 1rem;
-                text-align: left;
-                align-items: center;
+            .rating-box {
+                flex-direction: column;
+                text-align: center;
             }
 
-            .stat-value {
-                font-size: 2rem;
+            .badges {
+                gap: 0.5rem;
+            }
+
+            .badge-item {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.75rem;
             }
         }
 
@@ -686,37 +762,53 @@
                 Get instant updates on exclusive drops, special deals, and important announcements. Never miss out again.
             </p>
 
-            <!-- Stats -->
-            <div class="stats">
-                <div class="stat-card">
-                    <span class="stat-value">2.5K+</span>
-                    <span class="stat-label">Members</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">24/7</span>
-                    <span class="stat-label">Updates</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">100%</span>
-                    <span class="stat-label">Free</span>
-                </div>
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="https://t.me/primeuromain" class="action-btn btn-news">
+                    <i class="fab fa-telegram-plane btn-icon"></i>
+                    <span>Primeuro News</span>
+                </a>
+
+                <a href="https://primeuro.shop/" class="action-btn btn-buy">
+                    <i class="fas fa-shopping-cart btn-icon"></i>
+                    <span>Buy Now</span>
+                </a>
+
+                <a href="https://primeuro.shop/reviews.html" class="action-btn btn-reviews">
+                    <i class="fas fa-star btn-icon"></i>
+                    <span>Reviews</span>
+                </a>
             </div>
 
-            <!-- Primary CTA -->
-            <a href="https://t.me/primeuromain" class="cta-primary" id="joinBtn">
-                <i class="fab fa-telegram-plane cta-icon"></i>
-                <span>Join Channel Now</span>
-            </a>
-
-            <!-- Social Proof -->
-            <div class="social-proof">
-                <div class="social-proof-content">
-                    <div class="checkmark">
-                        <i class="fas fa-check"></i>
+            <!-- Rating & Badges -->
+            <div class="rating-section">
+                <div class="rating-box">
+                    <div class="stars">
+                        <i class="fas fa-star star"></i>
+                        <i class="fas fa-star star"></i>
+                        <i class="fas fa-star star"></i>
+                        <i class="fas fa-star star"></i>
+                        <i class="fas fa-star-half-alt star"></i>
                     </div>
-                    <p class="social-proof-text">
-                        <span class="member-count">2,500+</span> members already subscribed
-                    </p>
+                    <div>
+                        <div class="rating-value">4.7/5</div>
+                        <div class="rating-count">2,500+ Reviews</div>
+                    </div>
+                </div>
+
+                <div class="badges">
+                    <div class="badge-item">
+                        <i class="fas fa-shield-alt badge-icon"></i>
+                        <span>Trusted</span>
+                    </div>
+                    <div class="badge-item green">
+                        <i class="fas fa-check-circle badge-icon"></i>
+                        <span>Verified</span>
+                    </div>
+                    <div class="badge-item gold">
+                        <i class="fas fa-lock badge-icon"></i>
+                        <span>Secure</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -782,14 +874,17 @@
         'use strict';
 
         // Track button clicks for analytics
-        document.getElementById('joinBtn').addEventListener('click', function() {
-            console.log('Join Channel button clicked');
-            // Add your analytics tracking here if needed
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.querySelector('span').textContent;
+                console.log(`Button clicked: ${btnText}`);
+                // Add your analytics tracking here if needed
+            });
         });
 
-        // Animate stats on scroll
+        // Animate elements on scroll
         const observerOptions = {
-            threshold: 0.5,
+            threshold: 0.3,
             rootMargin: '0px'
         };
 
@@ -802,15 +897,16 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.stat-card, .feature-item').forEach(el => {
+        // Animate action buttons and features
+        document.querySelectorAll('.action-btn, .feature-item, .rating-section').forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'all 0.6s ease-out';
             observer.observe(el);
         });
 
-        // Add hover effect sound (optional)
-        document.querySelectorAll('.cta-primary, .feature-item, .stat-card').forEach(el => {
+        // Smooth hover animations
+        document.querySelectorAll('.action-btn, .feature-item').forEach(el => {
             el.addEventListener('mouseenter', function() {
                 this.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
             });
