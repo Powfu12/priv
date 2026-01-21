@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Updates - PRIMEURO</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="blog-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="loaded">
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-prim">PRIM</span><span class="logo-euro">EURO</span><span class="logo-stars">★</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html#hero">Home</a></li>
+                    <li><a href="index.html#how-we-work">How We Work</a></li>
+                    <li><a href="index.html#services">Services</a></li>
+                    <li><a href="index.html#faq">FAQ</a></li>
+                    <li><a href="blog.html" class="active">News</a></li>
+                    <li><a href="index.html#contact" class="btn-contact">Contact</a></li>
+                </ul>
+                <div class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BLOG CHANNEL -->
+    <section class="blog-section">
+        <div class="blog-container">
+            <!-- Channel Header -->
+            <div class="channel-header">
+                <div class="channel-avatar">
+                    <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4.414a1 1 0 0 0-.707.293L.854 15.146A.5.5 0 0 1 0 14.793V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                    </svg>
+                </div>
+                <div class="channel-info">
+                    <h1 class="channel-title">PRIMEURO News</h1>
+                    <p class="channel-subtitle">Official announcements and updates</p>
+                </div>
+            </div>
+
+            <!-- Posts Container -->
+            <div class="posts-container" id="postsContainer">
+                <!-- Loading state -->
+                <div class="loading-posts">
+                    <div class="spinner-blog"></div>
+                    <p>Loading posts...</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-posts" id="emptyState" style="display: none;">
+                <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5z"/>
+                </svg>
+                <h3>No posts yet</h3>
+                <p>Check back soon for updates and announcements</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <span class="logo-prim">PRIM</span><span class="logo-euro">EURO</span><span class="logo-stars">★</span>
+                    </div>
+                    <p class="footer-description">Premium in-game services for serious players. Fast, secure, and reliable.</p>
+                   
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 PRIMEURO. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <span>|</span>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+
+    <!-- Application Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="blog-script.js"></script>
+
+    <!-- Simple mobile menu toggle for blog page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (toggle && navLinks) {
+                toggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    toggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking on a link
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                        toggle.classList.remove('active');
+                    });
+                });
+            }
+
+            // Navbar scroll effect
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 100) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

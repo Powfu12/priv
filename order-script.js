@@ -4,11 +4,10 @@ const totalSteps = 5;
 
 // Package prices
 const packagePrices = {
-    '10m': { name: '10M Package', price: 24.99 },
-    '20m': { name: '20M Package', price: 44.99 },
-    '50m': { name: '50M Package', price: 99.99 }
+    '1': { name: 'Starter Package', price: 79.86 },
+    '2': { name: 'Premium Package', price: 149.86 },
+    '3': { name: 'Ultimate Package', price: 299.86 }
 };
-
 // Delivery prices
 const deliveryPrices = {
     'standard': 11.70,
@@ -19,6 +18,7 @@ const deliveryPrices = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
     updateOrderSummary();
+    setupInputValidation();
 
     // Package selection
     document.querySelectorAll('.package-option').forEach(option => {
@@ -91,6 +91,12 @@ function showStep(step) {
     });
 
     currentStep = step;
+
+    // Scroll to top of the page smoothly
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
 
 function nextStep() {
@@ -113,22 +119,186 @@ function validateCurrentStep() {
 
     const inputs = currentFormStep.querySelectorAll('input[required], select[required]');
     let isValid = true;
+    let errorMessages = [];
 
     inputs.forEach(input => {
+        // Reset border
+        input.style.borderColor = '';
+
+        // Check if empty
         if (!input.value.trim()) {
             isValid = false;
             input.style.borderColor = '#ff4444';
-            setTimeout(() => {
-                input.style.borderColor = '';
-            }, 2000);
+            errorMessages.push(`${input.labels[0]?.textContent || 'Field'} is required`);
+            return;
+        }
+
+        // Validate based on input type and name
+        const validation = validateInput(input);
+        if (!validation.valid) {
+            isValid = false;
+            input.style.borderColor = '#ff4444';
+            errorMessages.push(validation.message);
         }
     });
 
     if (!isValid) {
-        alert('Please fill in all required fields');
+        // Show first error message
+        alert(errorMessages[0]);
+
+        // Reset border colors after 2 seconds
+        setTimeout(() => {
+            inputs.forEach(input => {
+                input.style.borderColor = '';
+            });
+        }, 2000);
     }
 
     return isValid;
+}
+
+function validateInput(input) {
+    const value = input.value.trim();
+    const name = input.name || input.id;
+
+    // Email validation
+    if (input.type === 'email' || name === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            return { valid: false, message: 'Please enter a valid email address (e.g., user@example.com)' };
+        }
+    }
+
+    // Phone validation - must be numbers only, 10-15 digits
+    if (input.type === 'tel' || name === 'phone') {
+        const phoneRegex = /^\+?[0-9]{10,15}$/;
+        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
+            return { valid: false, message: 'Phone number must be 10-15 digits (numbers only)' };
+        }
+    }
+
+    // Full name validation - letters, spaces, hyphens only
+    if (name === 'fullName') {
+        const nameRegex = /^[a-zA-Z\s\-']+$/;
+        if (!nameRegex.test(value)) {
+            return { valid: false, message: 'Name must contain only letters, spaces, and hyphens' };
+        }
+        if (value.length < 2) {
+            return { valid: false, message: 'Name must be at least 2 characters long' };
+        }
+    }
+
+    // City validation - letters, spaces, hyphens only
+    if (name === 'city') {
+        const cityRegex = /^[a-zA-Z\s\-']+$/;
+        if (!cityRegex.test(value)) {
+            return { valid: false, message: 'City must contain only letters' };
+        }
+    }
+
+    // Postal code validation - alphanumeric with optional spaces/hyphens
+    if (name === 'postalCode') {
+        const postalRegex = /^[a-zA-Z0-9\s\-]{3,10}$/;
+        if (!postalRegex.test(value)) {
+            return { valid: false, message: 'Please enter a valid postal code (3-10 characters)' };
+        }
+    }
+
+    // Country validation - letters, spaces only
+    if (name === 'country') {
+        const countryRegex = /^[a-zA-Z\s]+$/;
+        if (!countryRegex.test(value)) {
+            return { valid: false, message: 'Country must contain only letters' };
+        }
+    }
+
+    // Street address validation - allow letters, numbers, spaces, common punctuation
+    if (name === 'streetAddress') {
+        if (value.length < 5) {
+            return { valid: false, message: 'Street address must be at least 5 characters long' };
+        }
+    }
+
+    // Telegram validation - must start with @ and contain only allowed characters
+    if (name === 'telegram') {
+        const telegramRegex = /^@[a-zA-Z0-9_]{5,32}$/;
+        if (!telegramRegex.test(value)) {
+            return { valid: false, message: 'Telegram username must start with @ and be 5-32 characters (letters, numbers, underscores only)' };
+        }
+    }
+
+    return { valid: true };
+}
+
+function setupInputValidation() {
+    // Phone input - allow only numbers and +
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            // Remove any non-digit characters except +
+            this.value = this.value.replace(/[^\d+]/g, '');
+            // Only allow + at the beginning
+            if (this.value.indexOf('+') > 0) {
+                this.value = this.value.replace(/\+/g, '');
+            }
+        });
+    }
+
+    // City input - allow only letters, spaces, hyphens
+    const cityInput = document.getElementById('city');
+    if (cityInput) {
+        cityInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s\-']/g, '');
+        });
+    }
+
+    // Country input - allow only letters and spaces
+    const countryInput = document.getElementById('country');
+    if (countryInput) {
+        countryInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+    }
+
+    // Full name input - allow only letters, spaces, hyphens, apostrophes
+    const nameInput = document.getElementById('fullName');
+    if (nameInput) {
+        nameInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s\-']/g, '');
+        });
+    }
+
+    // Postal code - allow letters, numbers, spaces, hyphens
+    const postalInput = document.getElementById('postalCode');
+    if (postalInput) {
+        postalInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z0-9\s\-]/g, '').substring(0, 10);
+        });
+    }
+
+    // Telegram - ensure @ prefix
+    const telegramInput = document.getElementById('telegram');
+    if (telegramInput) {
+        telegramInput.addEventListener('input', function(e) {
+            // Ensure it starts with @
+            if (!this.value.startsWith('@')) {
+                this.value = '@' + this.value.replace(/@/g, '');
+            }
+            // Allow only valid Telegram username characters after @
+            this.value = this.value.replace(/[^@a-zA-Z0-9_]/g, '');
+            // Limit length to 33 characters (@ + 32 characters)
+            if (this.value.length > 33) {
+                this.value = this.value.substring(0, 33);
+            }
+        });
+
+        // Add @ when field is focused if empty
+        telegramInput.addEventListener('focus', function(e) {
+            if (!this.value) {
+                this.value = '@';
+            }
+        });
+    }
 }
 
 function updateOrderSummary() {
@@ -175,9 +345,144 @@ function completeOrder() {
         const orderCode = generateOrderCode();
         document.getElementById('orderCode').textContent = orderCode;
 
+        // Collect order data
+        const orderData = collectOrderData(orderCode);
+
+        // Check if order data was collected successfully
+        if (!orderData) {
+            console.error('Failed to collect order data');
+            return;
+        }
+
+        // Save to Firebase
+        saveOrderToFirebase(orderData);
+
         // Show confirmation step
         showStep(5);
     }
+}
+
+function collectOrderData(orderCode) {
+    // Debug: Log all package inputs
+    const allPackageInputs = document.querySelectorAll('input[name="package"]');
+    console.log('All package inputs:', allPackageInputs);
+    console.log('Package prices available:', packagePrices);
+
+    // Get selected package
+    const selectedPackageInput = document.querySelector('input[name="package"]:checked');
+    console.log('Selected package input:', selectedPackageInput);
+
+    if (!selectedPackageInput) {
+        console.error('No package selected');
+        alert('Please select a package');
+        return null;
+    }
+
+    const selectedPackage = selectedPackageInput.value;
+    console.log('Selected package value:', selectedPackage);
+
+    const packageInfo = packagePrices[selectedPackage];
+    console.log('Package info:', packageInfo);
+
+    if (!packageInfo) {
+        console.error('Invalid package selected:', selectedPackage);
+        console.error('Available packages:', Object.keys(packagePrices));
+        alert('Invalid package selected. Please refresh the page and try again.');
+        return null;
+    }
+
+    // Get personal info
+    const fullName = document.getElementById('fullName').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
+    const telegram = document.getElementById('telegram').value;
+
+    // Get shipping details
+    const deliveryMethodInput = document.querySelector('input[name="deliveryMethod"]:checked');
+    const deliveryTypeInput = document.querySelector('input[name="deliveryType"]:checked');
+
+    if (!deliveryMethodInput || !deliveryTypeInput) {
+        console.error('Delivery options not selected');
+        alert('Please select delivery method and type');
+        return null;
+    }
+
+    const deliveryMethod = deliveryMethodInput.value;
+    const deliveryType = deliveryTypeInput.value;
+    const streetAddress = document.getElementById('streetAddress').value;
+    const city = document.getElementById('city').value;
+    const postalCode = document.getElementById('postalCode').value;
+    const country = document.getElementById('country').value;
+
+    // Get payment method
+    const paymentMethodInput = document.querySelector('input[name="payment"]:checked');
+    if (!paymentMethodInput) {
+        console.error('No payment method selected');
+        alert('Please select a payment method');
+        return null;
+    }
+    const paymentMethod = paymentMethodInput.value;
+
+    // Calculate total
+    const deliveryPrice = deliveryPrices[deliveryMethod];
+    const total = packageInfo.price + deliveryPrice;
+
+    // Create order object
+    return {
+        orderCode: orderCode,
+        timestamp: new Date().toISOString(),
+        status: 'pending',
+        personalInfo: {
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            telegram: telegram
+        },
+        package: {
+            name: packageInfo.name,
+            price: packageInfo.price
+        },
+        shipping: {
+            method: deliveryMethod,
+            methodPrice: deliveryPrice,
+            type: deliveryType,
+            address: {
+                street: streetAddress,
+                city: city,
+                postalCode: postalCode,
+                country: country
+            }
+        },
+        payment: {
+            method: paymentMethod,
+            total: total
+        }
+    };
+}
+
+function saveOrderToFirebase(orderData) {
+    // Check if Firebase is available
+    if (typeof firebase === 'undefined' || !firebase.database) {
+        console.error('Firebase is not initialized');
+        alert('Error: Unable to save order. Please try again or contact support.');
+        return;
+    }
+
+    const database = firebase.database();
+    const ordersRef = database.ref('orders');
+
+    // Generate unique order ID
+    const newOrderRef = ordersRef.push();
+
+    // Save order to Firebase
+    newOrderRef.set(orderData)
+        .then(() => {
+            console.log('Order saved successfully to Firebase');
+        })
+        .catch((error) => {
+            console.error('Error saving order to Firebase:', error);
+            alert('Error saving order. Please take a screenshot of your order code and contact support.');
+        });
 }
 
 function generateOrderCode() {
