@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Best restaurants and taverns in Zakynthos. Authentic Greek cuisine and local favorites recommended by locals.">
+    <title>Restaurants & Taverns - ZanteLocals</title>
+    <link rel="stylesheet" href="zantelocals-styles.css">
+    <link rel="stylesheet" href="zantelocals-category.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="zantelocals-index.html" class="logo">
+                    <span class="logo-zante">Zante</span><span class="logo-locals">Locals</span>
+                </a>
+
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="zantelocals-index.html" class="nav-link">Home</a></li>
+                    <li><a href="zantelocals-restaurants.html" class="nav-link active">Restaurants</a></li>
+                    <li><a href="zantelocals-bars.html" class="nav-link">Bars & Clubs</a></li>
+                    <li><a href="zantelocals-experiences.html" class="nav-link">Experiences</a></li>
+                    <li><a href="zantelocals-rentals.html" class="nav-link">Rentals</a></li>
+                </ul>
+
+                <button class="mobile-menu-toggle" id="mobile-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="header-background">
+            <div class="header-overlay"></div>
+        </div>
+        <div class="container">
+            <div class="header-content">
+                <div class="breadcrumb">
+                    <a href="zantelocals-index.html">Home</a>
+                    <span>/</span>
+                    <span>Restaurants</span>
+                </div>
+                <h1 class="page-title">
+                    <span class="title-icon">🍽️</span>
+                    Restaurants & Taverns
+                </h1>
+                <p class="page-subtitle">Discover authentic Greek cuisine and hidden culinary gems across Zakynthos</p>
+                <div class="page-stats">
+                    <span class="stat">45+ Restaurants</span>
+                    <span class="stat-divider">•</span>
+                    <span class="stat">All Local Verified</span>
+                    <span class="stat-divider">•</span>
+                    <span class="stat">Updated Daily</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <label class="filter-label">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Location
+                    </label>
+                    <select class="filter-select" id="location-filter">
+                        <option value="all">All Locations</option>
+                        <option value="zakynthos-town">Zakynthos Town</option>
+                        <option value="laganas">Laganas</option>
+                        <option value="argassi">Argassi</option>
+                        <option value="tsilivi">Tsilivi</option>
+                        <option value="alykanas">Alykanas</option>
+                        <option value="vasilikos">Vasilikos</option>
+                        <option value="kampi">Kampi</option>
+                        <option value="volimes">Volimes</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor"/>
+                        </svg>
+                        Price Range
+                    </label>
+                    <select class="filter-select" id="price-filter">
+                        <option value="all">All Prices</option>
+                        <option value="budget">€ - Budget Friendly</option>
+                        <option value="moderate">€€ - Moderate</option>
+                        <option value="upscale">€€€ - Upscale</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 7H21M10 12H21M3 17H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Type
+                    </label>
+                    <select class="filter-select" id="type-filter">
+                        <option value="all">All Types</option>
+                        <option value="traditional">Traditional Tavern</option>
+                        <option value="seafood">Seafood</option>
+                        <option value="mediterranean">Mediterranean</option>
+                        <option value="greek">Greek Cuisine</option>
+                        <option value="international">International</option>
+                        <option value="fine-dining">Fine Dining</option>
+                    </select>
+                </div>
+
+                <button class="filter-reset" id="reset-filters">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M21 3V8H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Reset
+                </button>
+            </div>
+
+            <div class="results-count">
+                Showing <span id="results-number">45</span> restaurants
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings Grid -->
+    <section class="listings-section">
+        <div class="container">
+            <div class="listings-grid" id="listings-grid">
+                <!-- Listing Item 1 -->
+                <div class="listing-card" data-location="porto-limnionas" data-price="upscale" data-type="seafood">
+                    <div class="listing-image">
+                        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="Porto Limnionas Tavern" loading="lazy">
+                        <div class="listing-badge top-rated">⭐ Top Rated</div>
+                        <button class="favorite-btn" aria-label="Add to favorites">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="listing-content">
+                        <div class="listing-header">
+                            <h3 class="listing-title">Porto Limnionas Tavern</h3>
+                            <div class="listing-rating">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                                </svg>
+                                <span>4.9</span>
+                            </div>
+                        </div>
+                        <div class="listing-type">Traditional Seafood Tavern</div>
+                        <div class="listing-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Porto Limnionas</span>
+                        </div>
+                        <p class="listing-description">Stunning cliffside tavern serving the freshest catch of the day with breathtaking views over turquoise waters.</p>
+                        <div class="listing-highlights">
+                            <span class="highlight-tag">Fresh Fish</span>
+                            <span class="highlight-tag">Sea View</span>
+                            <span class="highlight-tag">Local Favorite</span>
+                        </div>
+                        <div class="listing-footer">
+                            <div class="listing-price">€€€</div>
+                            <a href="zantelocals-listing.html?id=1" class="btn-view-details">
+                                View Details
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listing Item 2 -->
+                <div class="listing-card" data-location="zakynthos-town" data-price="moderate" data-type="traditional">
+                    <div class="listing-image">
+                        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600&q=80" alt="Taverna Akrotiri" loading="lazy">
+                        <div class="listing-badge local-favorite">❤️ Local Favorite</div>
+                        <button class="favorite-btn" aria-label="Add to favorites">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="listing-content">
+                        <div class="listing-header">
+                            <h3 class="listing-title">Taverna Akrotiri</h3>
+                            <div class="listing-rating">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                                </svg>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                        <div class="listing-type">Traditional Greek Tavern</div>
+                        <div class="listing-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Zakynthos Town</span>
+                        </div>
+                        <p class="listing-description">Family-run tavern in the heart of town serving authentic recipes passed down through generations.</p>
+                        <div class="listing-highlights">
+                            <span class="highlight-tag">Moussaka</span>
+                            <span class="highlight-tag">Family-Run</span>
+                            <span class="highlight-tag">Traditional</span>
+                        </div>
+                        <div class="listing-footer">
+                            <div class="listing-price">€€</div>
+                            <a href="zantelocals-listing.html?id=2" class="btn-view-details">
+                                View Details
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listing Item 3 -->
+                <div class="listing-card" data-location="laganas" data-price="budget" data-type="greek">
+                    <div class="listing-image">
+                        <img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?w=600&q=80" alt="Gyros Corner" loading="lazy">
+                        <div class="listing-badge best-value">💰 Best Value</div>
+                        <button class="favorite-btn" aria-label="Add to favorites">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.99871 7.05 2.99871C5.59096 2.99871 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39464C21.7563 5.72718 21.351 5.12075 20.84 4.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="listing-content">
+                        <div class="listing-header">
+                            <h3 class="listing-title">Kostas Gyros</h3>
+                            <div class="listing-rating">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                                </svg>
+                                <span>4.8</span>
+                            </div>
+                        </div>
+                        <div class="listing-type">Greek Street Food</div>
+                        <div class="listing-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Laganas</span>
+                        </div>
+                        <p class="listing-description">The best gyros on the island! Generous portions, incredible flavors, and unbeatable prices.</p>
+                        <div class="listing-highlights">
+                            <span class="highlight-tag">Gyros</span>
+                            <span class="highlight-tag">Quick Service</span>
+                            <span class="highlight-tag">Late Night</span>
+                        </div>
+                        <div class="listing-footer">
+                            <div class="listing-price">€</div>
+                            <a href="zantelocals-listing.html?id=3" class="btn-view-details">
+                                View Details
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More listings would be added here dynamically -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-container">
+                <button class="btn btn-outline btn-large" id="load-more">
+                    Load More Restaurants
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12L12 19L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Can't Find What You're Looking For?</h2>
+                <p class="cta-subtitle">Get in touch and we'll help you discover the perfect spot</p>
+                <a href="zantelocals-contact.html" class="btn btn-primary btn-large">
+                    <span>Contact Us</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <a href="zantelocals-index.html" class="footer-logo">
+                        <span class="logo-zante">Zante</span><span class="logo-locals">Locals</span>
+                    </a>
+                    <p class="footer-description">
+                        Discover Zakynthos like a local. Trusted recommendations for an authentic island experience.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Explore</h4>
+                    <ul class="footer-links">
+                        <li><a href="zantelocals-restaurants.html">Restaurants</a></li>
+                        <li><a href="zantelocals-bars.html">Bars & Clubs</a></li>
+                        <li><a href="zantelocals-experiences.html">Experiences</a></li>
+                        <li><a href="zantelocals-rentals.html">Rentals</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="zantelocals-about.html">About Us</a></li>
+                        <li><a href="zantelocals-contact.html">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4 class="footer-title">Get in Touch</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>hello@zantelocals.com</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>Zakynthos, Greece</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 ZanteLocals. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="zantelocals-index.html" class="mobile-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="zantelocals-restaurants.html" class="mobile-nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 3V8M8 8V21M8 8C10.2091 8 12 6.20914 12 4V3M16 3V11M16 11V21M16 11C13.7909 11 12 9.20914 12 7V3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Food</span>
+        </a>
+        <a href="zantelocals-experiences.html" class="mobile-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+            </svg>
+            <span>Explore</span>
+        </a>
+        <a href="zantelocals-contact.html" class="mobile-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Contact</span>
+        </a>
+    </nav>
+
+    <script src="zantelocals-script.js"></script>
+    <script src="zantelocals-category.js"></script>
+</body>
+</html>
