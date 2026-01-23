@@ -273,6 +273,17 @@
                                     </div>
                                 </label>
                             </div>
+
+                            <!-- Coupon Section -->
+                            <div class="coupon-section">
+                                <h3 class="section-subtitle">Have a Coupon?</h3>
+                                <div class="coupon-input-container">
+                                    <input type="text" id="couponCode" class="coupon-input" placeholder="Enter coupon code">
+                                    <button type="button" id="applyCouponBtn" class="btn-coupon" onclick="applyCoupon()">Apply</button>
+                                </div>
+                                <div id="couponMessage" class="coupon-message"></div>
+                            </div>
+
                             <div class="form-buttons">
                                 <button type="button" class="btn btn-back" onclick="prevStep()">Back</button>
                                 <button type="button" class="btn btn-next" onclick="completeOrder()">Complete Order</button>
@@ -331,6 +342,10 @@
                     <div class="summary-item">
                         <span class="summary-label">Amount:</span>
                         <span class="summary-value" id="summaryAmount">€99.99</span>
+                    </div>
+                    <div class="summary-item" id="summaryDiscountRow" style="display: none;">
+                        <span class="summary-label">Discount:</span>
+                        <span class="summary-value summary-discount" id="summaryDiscount">-€0.00</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">Delivery:</span>

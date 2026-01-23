@@ -14,6 +14,14 @@ const deliveryPrices = {
     'express': 15.99
 };
 
+// Coupon codes
+const couponCodes = {
+    'primeuro30': { discount: 30, type: 'percentage' } // 30% discount
+};
+
+// Coupon state
+let appliedCoupon = null;
+
 // Initialize form
 document.addEventListener('DOMContentLoaded', function() {
     initializeForm();
@@ -57,6 +65,23 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('selected');
         });
     });
+
+    // Coupon application
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    if (applyCouponBtn) {
+        applyCouponBtn.addEventListener('click', applyCoupon);
+    }
+
+    // Allow Enter key to apply coupon
+    const couponInput = document.getElementById('couponCode');
+    if (couponInput) {
+        couponInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyCoupon();
+            }
+        });
+    }
 });
 
 function initializeForm() {
@@ -301,6 +326,74 @@ function setupInputValidation() {
     }
 }
 
+function applyCoupon() {
+    const couponInput = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('couponMessage');
+
+    if (!couponInput || !couponMessage) return;
+
+    const code = couponInput.value.trim().toLowerCase();
+
+    // Reset message
+    couponMessage.textContent = '';
+    couponMessage.className = 'coupon-message';
+
+    if (!code) {
+        couponMessage.textContent = 'Please enter a coupon code';
+        couponMessage.classList.add('error');
+        return;
+    }
+
+    // Check if coupon exists
+    if (couponCodes[code]) {
+        appliedCoupon = {
+            code: code,
+            discount: couponCodes[code].discount,
+            type: couponCodes[code].type
+        };
+
+        couponMessage.textContent = `Coupon applied! ${couponCodes[code].discount}% discount`;
+        couponMessage.classList.add('success');
+
+        // Disable input and button
+        couponInput.disabled = true;
+        document.getElementById('applyCouponBtn').disabled = true;
+        document.getElementById('applyCouponBtn').textContent = 'Applied';
+
+        // Update order summary
+        updateOrderSummary();
+    } else {
+        couponMessage.textContent = 'Invalid coupon code';
+        couponMessage.classList.add('error');
+        appliedCoupon = null;
+    }
+}
+
+function removeCoupon() {
+    appliedCoupon = null;
+
+    const couponInput = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('couponMessage');
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+
+    if (couponInput) {
+        couponInput.value = '';
+        couponInput.disabled = false;
+    }
+
+    if (couponMessage) {
+        couponMessage.textContent = '';
+        couponMessage.className = 'coupon-message';
+    }
+
+    if (applyCouponBtn) {
+        applyCouponBtn.disabled = false;
+        applyCouponBtn.textContent = 'Apply';
+    }
+
+    updateOrderSummary();
+}
+
 function updateOrderSummary() {
     // Get selected package
     const selectedPackage = document.querySelector('input[name="package"]:checked');
@@ -324,17 +417,40 @@ function updateOrderSummary() {
         return;
     }
 
+    // Calculate discount
+    let discountAmount = 0;
+    if (appliedCoupon && appliedCoupon.type === 'percentage') {
+        discountAmount = (packageInfo.price * appliedCoupon.discount) / 100;
+    }
+
+    const discountedPackagePrice = packageInfo.price - discountAmount;
+
     // Update summary
     const summaryPackage = document.getElementById('summaryPackage');
     const summaryAmount = document.getElementById('summaryAmount');
+    const summaryDiscount = document.getElementById('summaryDiscount');
+    const summaryDiscountRow = document.getElementById('summaryDiscountRow');
     const summaryDelivery = document.getElementById('summaryDelivery');
     const summaryTotal = document.getElementById('summaryTotal');
 
     if (summaryPackage) summaryPackage.textContent = packageInfo.name;
     if (summaryAmount) summaryAmount.textContent = `€${packageInfo.price.toFixed(2)}`;
     if (summaryDelivery) summaryDelivery.textContent = `€${deliveryPrice.toFixed(2)}`;
+
+    // Show/hide discount row
+    if (summaryDiscountRow) {
+        if (discountAmount > 0) {
+            summaryDiscountRow.style.display = 'flex';
+            if (summaryDiscount) {
+                summaryDiscount.textContent = `-€${discountAmount.toFixed(2)}`;
+            }
+        } else {
+            summaryDiscountRow.style.display = 'none';
+        }
+    }
+
     if (summaryTotal) {
-        const total = packageInfo.price + deliveryPrice;
+        const total = discountedPackagePrice + deliveryPrice;
         summaryTotal.textContent = `€${total.toFixed(2)}`;
     }
 }
@@ -423,12 +539,23 @@ function collectOrderData(orderCode) {
     }
     const paymentMethod = paymentMethodInput.value;
 
-    // Calculate total
+    // Calculate total with discount
     const deliveryPrice = deliveryPrices[deliveryMethod];
-    const total = packageInfo.price + deliveryPrice;
+    let discountAmount = 0;
+    let discountPercentage = 0;
+    let couponCode = null;
+
+    if (appliedCoupon && appliedCoupon.type === 'percentage') {
+        discountAmount = (packageInfo.price * appliedCoupon.discount) / 100;
+        discountPercentage = appliedCoupon.discount;
+        couponCode = appliedCoupon.code;
+    }
+
+    const discountedPackagePrice = packageInfo.price - discountAmount;
+    const total = discountedPackagePrice + deliveryPrice;
 
     // Create order object
-    return {
+    const orderData = {
         orderCode: orderCode,
         timestamp: new Date().toISOString(),
         status: 'pending',
@@ -440,7 +567,8 @@ function collectOrderData(orderCode) {
         },
         package: {
             name: packageInfo.name,
-            price: packageInfo.price
+            price: packageInfo.price,
+            discountedPrice: discountedPackagePrice
         },
         shipping: {
             method: deliveryMethod,
@@ -458,6 +586,17 @@ function collectOrderData(orderCode) {
             total: total
         }
     };
+
+    // Add coupon info if applied
+    if (couponCode) {
+        orderData.coupon = {
+            code: couponCode,
+            discountPercentage: discountPercentage,
+            discountAmount: discountAmount
+        };
+    }
+
+    return orderData;
 }
 
 function saveOrderToFirebase(orderData) {
@@ -525,3 +664,5 @@ window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.completeOrder = completeOrder;
 window.copyOrderCode = copyOrderCode;
+window.applyCoupon = applyCoupon;
+window.removeCoupon = removeCoupon;
