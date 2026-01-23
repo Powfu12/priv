@@ -190,6 +190,20 @@ function displayOrders() {
     displayMobileCards();
 }
 
+// Format status for display
+function formatStatusDisplay(status) {
+    const statusMap = {
+        'waiting_to_pay_delivery': 'Waiting Payment',
+        'delivery_paid': 'Delivery Paid',
+        'shipped': 'Shipped',
+        'payed_full': 'Paid Full',
+        'canceled': 'Canceled',
+        'pending': 'Pending',
+        'completed': 'Completed'
+    };
+    return statusMap[status] || status;
+}
+
 // Display orders in desktop table
 function displayDesktopTable() {
     const tableBody = document.getElementById('ordersTableBody');
@@ -211,7 +225,8 @@ function displayDesktopTable() {
         const customerName = order.personalInfo?.fullName || 'N/A';
         const packageName = order.package?.name || 'N/A';
         const total = order.payment?.total ? `€${order.payment.total.toFixed(2)}` : '€0.00';
-        const status = order.status || 'pending';
+        const status = order.status || 'waiting_to_pay_delivery';
+        const statusDisplay = formatStatusDisplay(status);
         const date = order.timestamp ? formatDate(order.timestamp) : 'N/A';
 
         return `
@@ -220,7 +235,7 @@ function displayDesktopTable() {
                 <td>${customerName}</td>
                 <td>${packageName}</td>
                 <td><strong>${total}</strong></td>
-                <td><span class="status-badge ${status}">${status}</span></td>
+                <td><span class="status-badge ${status}">${statusDisplay}</span></td>
                 <td>${date}</td>
                 <td>
                     <button class="action-btn primary" onclick="viewOrder('${order.id}')">View</button>
@@ -260,14 +275,15 @@ function displayMobileCards() {
             const customerName = order.personalInfo?.fullName || 'N/A';
             const packageName = order.package?.name || 'N/A';
             const total = order.payment?.total ? `€${order.payment.total.toFixed(2)}` : '€0.00';
-            const status = order.status || 'pending';
+            const status = order.status || 'waiting_to_pay_delivery';
+            const statusDisplay = formatStatusDisplay(status);
             const date = order.timestamp ? formatDate(order.timestamp) : 'N/A';
 
             return `
                 <div class="order-card-mobile">
                     <div class="order-card-header-mobile">
                         <div class="order-code-mobile">${orderCode}</div>
-                        <span class="status-badge ${status}">${status}</span>
+                        <span class="status-badge ${status}">${statusDisplay}</span>
                     </div>
                     <div class="order-info-mobile">
                         <div class="info-item-mobile">
@@ -304,21 +320,28 @@ function displayMobileCards() {
 // Update statistics
 function updateStats() {
     const totalOrders = allOrders.length;
-    const pendingOrders = allOrders.filter(o => o.status === 'pending').length;
-    const completedOrders = allOrders.filter(o => o.status === 'completed').length;
-    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
+    const waitingOrders = allOrders.filter(o => o.status === 'waiting_to_pay_delivery').length;
+    const shippedOrders = allOrders.filter(o => o.status === 'shipped').length;
+    const completedOrders = allOrders.filter(o => o.status === 'delivery_paid' || o.status === 'payed_full').length;
+
+    // Revenue only from delivery_paid and payed_full orders
+    const totalRevenue = allOrders
+        .filter(o => o.status === 'delivery_paid' || o.status === 'payed_full')
+        .reduce((sum, o) => sum + (o.payment?.total || 0), 0);
 
     const totalEl = document.getElementById('totalOrders');
-    const pendingEl = document.getElementById('pendingOrders');
+    const waitingEl = document.getElementById('waitingOrders');
+    const shippedEl = document.getElementById('shippedOrders');
     const completedEl = document.getElementById('completedOrders');
     const revenueEl = document.getElementById('totalRevenue');
     const badgeEl = document.getElementById('ordersBadge');
 
     if (totalEl) totalEl.textContent = totalOrders;
-    if (pendingEl) pendingEl.textContent = pendingOrders;
+    if (waitingEl) waitingEl.textContent = waitingOrders;
+    if (shippedEl) shippedEl.textContent = shippedOrders;
     if (completedEl) completedEl.textContent = completedOrders;
     if (revenueEl) revenueEl.textContent = `€${totalRevenue.toFixed(2)}`;
-    if (badgeEl) badgeEl.textContent = pendingOrders;
+    if (badgeEl) badgeEl.textContent = waitingOrders;
 }
 
 // View order details in modal
@@ -334,6 +357,8 @@ function viewOrder(orderId) {
         const value = path.split('.').reduce((acc, part) => acc?.[part], obj);
         return value !== undefined && value !== null && value !== '' ? value : defaultValue;
     };
+
+    const statusDisplay = formatStatusDisplay(status);
 
     modalBody.innerHTML = `
         <div style="display: grid; gap: 1.5rem;">
@@ -351,13 +376,14 @@ function viewOrder(orderId) {
                     </div>
                     <div>
                         <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Status</div>
-                        <span class="status-badge ${status}">${status}</span>
+                        <span class="status-badge ${status}">${statusDisplay}</span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
-                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'pending')" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: var(--warning);">Mark Pending</button>
-                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'completed')" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: var(--success);">Mark Completed</button>
-                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'canceled')" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger);">Mark Canceled</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1rem;">
+                    <button class="action-btn status-btn" onclick="updateOrderStatus('${order.id}', 'waiting_to_pay_delivery')" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: #f59e0b;">Waiting Payment</button>
+                    <button class="action-btn status-btn" onclick="updateOrderStatus('${order.id}', 'delivery_paid')" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: #3b82f6;">Delivery Paid</button>
+                    <button class="action-btn status-btn" onclick="updateOrderStatus('${order.id}', 'shipped')" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: #8b5cf6;">Shipped</button>
+                    <button class="action-btn status-btn" onclick="updateOrderStatus('${order.id}', 'payed_full')" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: var(--success);">Paid Full</button>
                 </div>
             </div>
 
@@ -401,8 +427,21 @@ function viewOrder(orderId) {
 
             <!-- Shipping Information -->
             <div style="background: var(--bg-main); padding: 1.25rem; border-radius: 0.5rem;">
-                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Shipping Information</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary);">Shipping Information</h3>
+                    <button class="action-btn primary" onclick="copyShippingInfo('${order.id}')" style="font-size: 0.75rem; padding: 0.375rem 0.75rem;">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 0.25rem;">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                        Copy Address
+                    </button>
+                </div>
                 <div style="display: grid; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Full Name</div>
+                        <div style="font-weight: 500;" id="shipping-name-${order.id}">${getValue(order, 'personalInfo.fullName')}</div>
+                    </div>
                     <div>
                         <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Delivery Method</div>
                         <div style="font-weight: 500;">${getValue(order, 'shipping.method', 'standard')} (+€${order.shipping?.methodPrice ? order.shipping.methodPrice.toFixed(2) : '0.00'})</div>
@@ -411,13 +450,12 @@ function viewOrder(orderId) {
                         <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Delivery Type</div>
                         <div style="font-weight: 500;">${getValue(order, 'shipping.type')}</div>
                     </div>
-                    <div>
-                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Address</div>
-                        <div style="font-weight: 500;">
-                            ${getValue(order, 'shipping.address.street')}<br>
-                            ${getValue(order, 'shipping.address.city')}, ${getValue(order, 'shipping.address.postalCode')}<br>
-                            ${getValue(order, 'shipping.address.country')}
-                        </div>
+                    <div style="background: white; padding: 1rem; border-radius: 0.375rem; border: 2px dashed var(--border);">
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">📦 SHIPPING ADDRESS</div>
+                        <div style="font-weight: 500; font-family: monospace; line-height: 1.8;" id="shipping-address-${order.id}">${getValue(order, 'personalInfo.fullName')}
+${getValue(order, 'shipping.address.street')}
+${getValue(order, 'shipping.address.city')}, ${getValue(order, 'shipping.address.postalCode')}
+${getValue(order, 'shipping.address.country')}</div>
                     </div>
                 </div>
             </div>
@@ -1124,6 +1162,38 @@ async function deleteImageFromStorage(imageUrl) {
     return Promise.resolve();
 }
 
+// Copy shipping info to clipboard
+function copyShippingInfo(orderId) {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const getValue = (obj, path, defaultValue = 'N/A') => {
+        const value = path.split('.').reduce((acc, part) => acc?.[part], obj);
+        return value !== undefined && value !== null && value !== '' ? value : defaultValue;
+    };
+
+    const shippingText = `${getValue(order, 'personalInfo.fullName')}
+${getValue(order, 'shipping.address.street')}
+${getValue(order, 'shipping.address.city')}, ${getValue(order, 'shipping.address.postalCode')}
+${getValue(order, 'shipping.address.country')}`;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(shippingText).then(() => {
+        // Show success feedback
+        const button = event.target.closest('button');
+        const originalHTML = button.innerHTML;
+        button.innerHTML = `<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 0.25rem;">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>Copied!`;
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy address to clipboard');
+    });
+}
+
 // Make functions globally accessible
 window.toggleSidebar = toggleSidebar;
 window.switchTab = switchTab;
@@ -1134,6 +1204,7 @@ window.updateOrderStatus = updateOrderStatus;
 window.confirmDeleteOrder = confirmDeleteOrder;
 window.deleteOrder = deleteOrder;
 window.closeModal = closeModal;
+window.copyShippingInfo = copyShippingInfo;
 window.loadPosts = loadPosts;
 window.openCreatePostModal = openCreatePostModal;
 window.editPost = editPost;
