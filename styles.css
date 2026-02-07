@@ -313,6 +313,10 @@ body.loaded .loading-screen {
 /* Loading Text */
 .loading-text {
     animation: fadeInUp 1s ease-out 0.5s both;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .loading-text h3 {
