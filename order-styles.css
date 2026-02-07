@@ -846,6 +846,13 @@
     letter-spacing: -0.5px;
 }
 
+.what-now-email-note {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
 .what-now-steps {
     list-style: none;
     counter-reset: step-counter;
