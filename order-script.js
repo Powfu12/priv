@@ -2,6 +2,13 @@
 let currentStep = 1;
 const totalSteps = 5;
 
+// Initialize EmailJS
+(function() {
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init('Q4Uhm6GE-84ZRYf2S');
+    }
+})();
+
 // Package prices
 const packagePrices = {
     '1': { name: 'Starter Package', price: 79.86 },
@@ -357,9 +364,40 @@ function completeOrder() {
         // Save to Firebase
         saveOrderToFirebase(orderData);
 
+        // Send confirmation email
+        sendConfirmationEmail(orderData);
+
         // Show confirmation step
         showStep(5);
     }
+}
+
+function sendConfirmationEmail(orderData) {
+    if (typeof emailjs === 'undefined') {
+        console.error('EmailJS not loaded');
+        return;
+    }
+
+    const templateParams = {
+        to_name: orderData.personalInfo.fullName,
+        to_email: orderData.personalInfo.email,
+        order_code: orderData.orderCode,
+        package_name: orderData.package.name,
+        package_price: '€' + orderData.package.price.toFixed(2),
+        delivery_method: orderData.shipping.method,
+        delivery_price: '€' + orderData.shipping.methodPrice.toFixed(2),
+        total: '€' + orderData.payment.total.toFixed(2),
+        address: orderData.shipping.address.street + ', ' + orderData.shipping.address.city + ' ' + orderData.shipping.address.postalCode + ', ' + orderData.shipping.address.country,
+        payment_method: orderData.payment.method
+    };
+
+    emailjs.send('service_ixg7gxb', 'template_e01u58f', templateParams)
+        .then(function() {
+            console.log('Confirmation email sent successfully');
+        })
+        .catch(function(error) {
+            console.error('Failed to send confirmation email:', error);
+        });
 }
 
 function collectOrderData(orderCode) {
