@@ -881,23 +881,54 @@
     box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
 }
 
+.what-now-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-instagram {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    color: var(--primary-white);
+    padding: 1.25rem 2rem;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 900;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 30px rgba(214, 36, 159, 0.4);
+    flex: 1;
+    justify-content: center;
+    min-height: 56px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.btn-instagram:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(214, 36, 159, 0.6);
+}
+
 .btn-telegram {
     display: inline-flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     background: linear-gradient(135deg, #0088cc, #006699);
     color: var(--primary-white);
-    padding: 1.25rem 2.5rem;
+    padding: 1.25rem 2rem;
     border-radius: 14px;
     text-decoration: none;
     font-weight: 900;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 8px 30px rgba(0, 136, 204, 0.5);
-    width: 100%;
+    flex: 1;
     justify-content: center;
     min-height: 56px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-size: 0.85rem;
 }
 
 .btn-telegram:hover {
@@ -1433,10 +1464,15 @@
         font-size: 0.9rem;
     }
 
+    .what-now-buttons {
+        flex-direction: column;
+    }
+
+    .btn-instagram,
     .btn-telegram {
         padding: 1.125rem 2rem;
         min-height: 54px;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
 
     .confirmation-icon {
