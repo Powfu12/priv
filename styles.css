@@ -720,9 +720,56 @@ body.loaded .loading-screen {
     display: flex;
     gap: 1.5rem;
     justify-content: center;
-    margin-bottom: 4rem;
+    margin-bottom: 1.2rem;
     animation: fadeInUp 1s ease-out 0.6s both;
     flex-wrap: wrap;
+}
+
+.hero-social {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 4rem;
+    animation: fadeInUp 1s ease-out 0.75s both;
+}
+
+.hero-social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    transition: all var(--transition-speed);
+    text-decoration: none;
+}
+
+.hero-social-icon:hover {
+    transform: translateY(-3px) scale(1.1);
+    filter: brightness(1.15);
+}
+
+.hero-social-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.hero-social-ig {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    box-shadow: 0 2px 10px rgba(214, 36, 159, 0.4);
+}
+
+.hero-social-ig:hover {
+    box-shadow: 0 4px 16px rgba(214, 36, 159, 0.55);
+}
+
+.hero-social-tg {
+    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    box-shadow: 0 2px 10px rgba(34, 158, 217, 0.4);
+}
+
+.hero-social-tg:hover {
+    box-shadow: 0 4px 16px rgba(34, 158, 217, 0.55);
 }
 
 .btn {
@@ -1498,6 +1545,22 @@ section {
         max-width: 400px;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 1rem;
+    }
+
+    .hero-social {
+        margin-bottom: 2.5rem;
+        gap: 1rem;
+    }
+
+    .hero-social-icon {
+        width: 46px;
+        height: 46px;
+    }
+
+    .hero-social-icon svg {
+        width: 22px;
+        height: 22px;
     }
 
     .btn {
@@ -1581,6 +1644,22 @@ section {
         flex-direction: column;
         width: 100%;
         padding: 0 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-social {
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+
+    .hero-social-icon {
+        width: 46px;
+        height: 46px;
+    }
+
+    .hero-social-icon svg {
+        width: 22px;
+        height: 22px;
     }
 
     .btn {
