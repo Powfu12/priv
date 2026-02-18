@@ -715,6 +715,67 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             color: var(--accent-gold);
             font-weight: 700;
         }
+        /* ===== Purchase Notification Toast ===== */
+        .purchase-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            max-width: 340px;
+            transform: translateX(-120%);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+        .purchase-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .purchase-toast-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            font-size: 1.1rem;
+        }
+        .purchase-toast-text {
+            font-size: 0.8rem;
+            color: var(--text-gray-light);
+            line-height: 1.4;
+        }
+        .purchase-toast-text strong {
+            color: var(--text-white);
+            font-weight: 700;
+        }
+        .purchase-toast-text .toast-country {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+        .purchase-toast-time {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            margin-top: 0.15rem;
+        }
+        @media (max-width: 480px) {
+            .purchase-toast {
+                left: 0.75rem;
+                right: 0.75rem;
+                max-width: none;
+                bottom: 1rem;
+            }
+        }
         /* ===== Footer ===== */
         .footer {
             position: relative;
@@ -1029,6 +1090,14 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             </button>
         </div>
     </div>
+    <!-- Purchase Notification Toast -->
+    <div class="purchase-toast" id="purchaseToast">
+        <div class="purchase-toast-icon">🛒</div>
+        <div>
+            <div class="purchase-toast-text" id="purchaseToastText"></div>
+            <div class="purchase-toast-time" id="purchaseToastTime"></div>
+        </div>
+    </div>
     <!-- Footer -->
     <footer class="footer">
         <p class="footer-text">&copy; 2024 Primeuro. All rights reserved.</p>
@@ -1147,6 +1216,79 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             el.style.transition = 'all 0.6s ease-out';
             observer.observe(el);
         });
+        // ===== Purchase Notification Popups =====
+        const toastEl = document.getElementById('purchaseToast');
+        const toastText = document.getElementById('purchaseToastText');
+        const toastTime = document.getElementById('purchaseToastTime');
+        const buyers = [
+            { name: 'Alexandros', country: 'Greece', flag: '🇬🇷' },
+            { name: 'Maria', country: 'Greece', flag: '🇬🇷' },
+            { name: 'Nikos', country: 'Greece', flag: '🇬🇷' },
+            { name: 'Andrei', country: 'Romania', flag: '🇷🇴' },
+            { name: 'Elena', country: 'Romania', flag: '🇷🇴' },
+            { name: 'Mihai', country: 'Romania', flag: '🇷🇴' },
+            { name: 'Lukas', country: 'Germany', flag: '🇩🇪' },
+            { name: 'Anna', country: 'Germany', flag: '🇩🇪' },
+            { name: 'Maximilian', country: 'Germany', flag: '🇩🇪' },
+            { name: 'Pierre', country: 'France', flag: '🇫🇷' },
+            { name: 'Camille', country: 'France', flag: '🇫🇷' },
+            { name: 'Hugo', country: 'France', flag: '🇫🇷' },
+            { name: 'Marco', country: 'Italy', flag: '🇮🇹' },
+            { name: 'Giulia', country: 'Italy', flag: '🇮🇹' },
+            { name: 'Luca', country: 'Italy', flag: '🇮🇹' },
+            { name: 'Carlos', country: 'Spain', flag: '🇪🇸' },
+            { name: 'Sofia', country: 'Spain', flag: '🇪🇸' },
+            { name: 'Pablo', country: 'Spain', flag: '🇪🇸' },
+            { name: 'Jan', country: 'Netherlands', flag: '🇳🇱' },
+            { name: 'Emma', country: 'Netherlands', flag: '🇳🇱' },
+            { name: 'Daan', country: 'Netherlands', flag: '🇳🇱' },
+            { name: 'Lars', country: 'Sweden', flag: '🇸🇪' },
+            { name: 'Astrid', country: 'Sweden', flag: '🇸🇪' },
+            { name: 'Jakub', country: 'Poland', flag: '🇵🇱' },
+            { name: 'Katarzyna', country: 'Poland', flag: '🇵🇱' },
+            { name: 'Tomáš', country: 'Czech Republic', flag: '🇨🇿' },
+            { name: 'Viktor', country: 'Hungary', flag: '🇭🇺' },
+            { name: 'Jonas', country: 'Lithuania', flag: '🇱🇹' },
+            { name: 'Matej', country: 'Croatia', flag: '🇭🇷' },
+            { name: 'Diogo', country: 'Portugal', flag: '🇵🇹' },
+            { name: 'Beatriz', country: 'Portugal', flag: '🇵🇹' },
+            { name: 'Oliver', country: 'Denmark', flag: '🇩🇰' },
+            { name: 'Felix', country: 'Austria', flag: '🇦🇹' },
+            { name: 'Youssef', country: 'Belgium', flag: '🇧🇪' },
+            { name: 'Eoin', country: 'Ireland', flag: '🇮🇪' },
+            { name: 'Dimitris', country: 'Cyprus', flag: '🇨🇾' },
+            { name: 'Ivan', country: 'Bulgaria', flag: '🇧🇬' },
+            { name: 'Matti', country: 'Finland', flag: '🇫🇮' },
+            { name: 'Emil', country: 'Norway', flag: '🇳🇴' },
+            { name: 'Liam', country: 'Switzerland', flag: '🇨🇭' }
+        ];
+        const timeAgo = ['just now', '1 min ago', '2 mins ago', '3 mins ago', '5 mins ago', '8 mins ago', '12 mins ago'];
+        let lastBuyerIndex = -1;
+        function getRandomBuyer() {
+            let idx;
+            do { idx = Math.floor(Math.random() * buyers.length); } while (idx === lastBuyerIndex);
+            lastBuyerIndex = idx;
+            return buyers[idx];
+        }
+        function showPurchaseToast() {
+            const buyer = getRandomBuyer();
+            const time = timeAgo[Math.floor(Math.random() * timeAgo.length)];
+            toastText.innerHTML = '<strong>' + buyer.name + '</strong> from <span class="toast-country">' + buyer.flag + ' ' + buyer.country + '</span> just purchased';
+            toastTime.textContent = time;
+            toastEl.classList.add('show');
+            setTimeout(function() {
+                toastEl.classList.remove('show');
+            }, 3500);
+        }
+        // First notification after 2 seconds, then every 5-8 seconds
+        setTimeout(function() {
+            showPurchaseToast();
+            setInterval(function() {
+                const delay = Math.floor(Math.random() * 3000) + 2000;
+                setTimeout(showPurchaseToast, delay);
+            }, 7000);
+        }, 2000);
+
         console.log('🚀 Primeuro TikTok Links page loaded successfully');
     </script>
 </body>
