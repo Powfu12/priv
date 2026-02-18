@@ -363,6 +363,47 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
         .btn-icon {
             font-size: 1.25rem;
         }
+        /* ===== Limited Stock ===== */
+        .limited-stock {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.25rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(255, 165, 0, 0.12));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-lg);
+            font-size: 0.85rem;
+            color: var(--text-gray-light);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+        .limited-stock i {
+            color: #ef4444;
+            font-size: 1rem;
+            animation: flicker 1.5s ease-in-out infinite;
+        }
+        .limited-stock strong {
+            color: #ef4444;
+        }
+        .limited-stock-pulse {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #ef4444;
+            animation: stockPulse 2s ease-in-out infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes stockPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         /* ===== Trust Indicators ===== */
         .trust-section {
             display: flex;
@@ -816,7 +857,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             </p>
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <a href="https://primeuro.shop/" class="action-btn btn-primary">
+                <a href="https://primeuro.shop/" class="action-btn btn-primary" id="buyNowBtn">
                     <i class="fas fa-shopping-cart btn-icon"></i>
                     <span>Buy Now</span>
                 </a>
@@ -832,6 +873,12 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
                     <i class="fas fa-envelope btn-icon"></i>
                     <span>Contact Us</span>
                 </a>
+            </div>
+            <!-- Limited Stock Banner -->
+            <div class="limited-stock">
+                <div class="limited-stock-pulse"></div>
+                <i class="fas fa-fire"></i>
+                <span><strong>Limited Stock</strong> — Only a few items left. Order before they're gone!</span>
             </div>
         </section>
         <!-- Trust Indicators -->
@@ -1059,12 +1106,25 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
             if (e.key === 'ArrowLeft') prevImage();
             if (e.key === 'ArrowRight') nextImage();
         });
+        // ===== TikTok Pixel - Track Buy Now Button =====
+        const buyNowBtn = document.getElementById('buyNowBtn');
+        if (buyNowBtn) {
+            buyNowBtn.addEventListener('click', function() {
+                ttq.track('ClickButton', {
+                    content_name: 'Buy Now',
+                    content_type: 'product'
+                });
+                ttq.track('InitiateCheckout', {
+                    content_name: 'Buy Now',
+                    content_type: 'product'
+                });
+            });
+        }
         // ===== Track Button Clicks =====
         document.querySelectorAll('.action-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const btnText = this.querySelector('span').textContent;
                 console.log(`Button clicked: ${btnText}`);
-                // Add your analytics tracking here if needed
             });
         });
         // ===== Animate Elements on Scroll =====
