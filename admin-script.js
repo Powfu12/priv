@@ -224,6 +224,7 @@ function displayDesktopTable() {
                 <td>${date}</td>
                 <td>
                     <button class="action-btn primary" onclick="viewOrder('${order.id}')">View</button>
+                    ${order.personalInfo?.telegram ? `<a href="https://t.me/${order.personalInfo.telegram.replace('@', '')}" target="_blank" rel="noopener" class="action-btn" style="background: #2AABEE; color: white; border-color: #2AABEE; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;"><svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/></svg>TG</a>` : ''}
                     <button class="action-btn danger" onclick="confirmDeleteOrder('${order.id}')">Delete</button>
                 </td>
             </tr>
@@ -289,6 +290,7 @@ function displayMobileCards() {
                     </div>
                     <div class="order-actions-mobile">
                         <button class="action-btn primary" onclick="viewOrder('${order.id}')">View Details</button>
+                        ${order.personalInfo?.telegram ? `<a href="https://t.me/${order.personalInfo.telegram.replace('@', '')}" target="_blank" rel="noopener" class="action-btn" style="background: #2AABEE; color: white; border-color: #2AABEE; text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/></svg>Telegram</a>` : ''}
                         <button class="action-btn danger" onclick="confirmDeleteOrder('${order.id}')">Delete</button>
                     </div>
                 </div>
@@ -379,7 +381,10 @@ function viewOrder(orderId) {
                     </div>
                     <div>
                         <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Telegram</div>
-                        <div style="font-weight: 500;">${getValue(order, 'personalInfo.telegram')}</div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            <div style="font-weight: 500;">${getValue(order, 'personalInfo.telegram')}</div>
+                            ${order.personalInfo?.telegram ? `<a href="https://t.me/${order.personalInfo.telegram.replace('@', '')}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.875rem; background: #2AABEE; color: white; border-radius: 0.375rem; font-size: 0.8125rem; font-weight: 600; text-decoration: none; white-space: nowrap; line-height: 1;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/></svg>Message on Telegram</a>` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
