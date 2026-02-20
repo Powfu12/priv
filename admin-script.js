@@ -354,12 +354,23 @@ function viewOrder(orderId) {
                     <div>
                         <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Status</div>
                         <span class="status-badge ${status}">${status}</span>
+                        ${order.cancelReason ? `<div style="margin-top: 0.375rem; font-size: 0.8125rem; color: var(--danger); font-weight: 500;">Reason: ${order.cancelReason}</div>` : ''}
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;" id="orderStatusActions">
                     <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'pending')" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border-color: var(--warning);">Mark Pending</button>
                     <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'completed')" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: var(--success);">Mark Completed</button>
-                    <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'canceled')" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger);">Mark Canceled</button>
+                    <button class="action-btn" onclick="promptCancelReason('${order.id}')" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger);">Mark Canceled</button>
+                </div>
+                <div id="cancelReasonPanel" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.5rem;">
+                    <div style="font-size: 0.875rem; font-weight: 600; color: var(--danger); margin-bottom: 0.75rem;">Select cancellation reason:</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn\'t Respond')">Didn't Respond</button>
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'No Valid TG')">No Valid TG</button>
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn\'t Pay')">Didn't Pay</button>
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Retard')">Retard</button>
+                    </div>
+                    <button class="action-btn" onclick="document.getElementById('cancelReasonPanel').style.display='none';document.getElementById('orderStatusActions').style.display='flex';" style="margin-top: 0.5rem; width: 100%; justify-content: center;">← Back</button>
                 </div>
             </div>
 
@@ -465,13 +476,41 @@ function updateOrderStatus(orderId, newStatus) {
     }
 
     const orderRef = window.firebaseDB.ref(`orders/${orderId}`);
-    orderRef.update({ status: newStatus })
+    const update = { status: newStatus };
+    if (newStatus !== 'canceled') {
+        update.cancelReason = null;
+    }
+    orderRef.update(update)
         .then(() => {
-            alert(`Order status updated to ${newStatus}`);
             closeModal();
         })
         .catch((error) => {
             console.error('Error updating order:', error);
+            alert('Error updating order status');
+        });
+}
+
+// Show cancel reason picker inside the order modal
+function promptCancelReason(orderId) {
+    const actionsDiv = document.getElementById('orderStatusActions');
+    const panel = document.getElementById('cancelReasonPanel');
+    if (actionsDiv) actionsDiv.style.display = 'none';
+    if (panel) panel.style.display = 'block';
+}
+
+// Cancel order and save the reason to Firebase
+function cancelOrderWithReason(orderId, reason) {
+    if (!window.firebaseDB) {
+        alert('Firebase is not configured');
+        return;
+    }
+    const orderRef = window.firebaseDB.ref(`orders/${orderId}`);
+    orderRef.update({ status: 'canceled', cancelReason: reason })
+        .then(() => {
+            closeModal();
+        })
+        .catch((error) => {
+            console.error('Error canceling order:', error);
             alert('Error updating order status');
         });
 }
@@ -522,6 +561,7 @@ function generateAnalytics() {
     generatePackageChart();
     generatePaymentChart();
     generateRevenueChart();
+    generateCancelReasonsChart();
 }
 
 // Generate country distribution chart
@@ -708,6 +748,54 @@ function generateRevenueChart() {
                         </div>
                         <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
                             <div style="height: 100%; width: ${percentage}%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Generate cancellation reasons chart
+function generateCancelReasonsChart() {
+    const container = document.getElementById('cancelReasonsChart');
+    if (!container) return;
+
+    const canceledOrders = allOrders.filter(o => o.status === 'canceled' && o.cancelReason);
+
+    if (canceledOrders.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No cancellations with a recorded reason yet</p>';
+        return;
+    }
+
+    const reasonData = {};
+    canceledOrders.forEach(order => {
+        const reason = order.cancelReason || 'Unknown';
+        reasonData[reason] = (reasonData[reason] || 0) + 1;
+    });
+
+    const sortedReasons = Object.entries(reasonData).sort((a, b) => b[1] - a[1]);
+    const total = sortedReasons.reduce((sum, [, count]) => sum + count, 0);
+    const colors = ['var(--danger)', 'var(--warning)', '#8b5cf6', 'var(--primary)'];
+
+    const html = `
+        <div style="margin-bottom: 1rem; font-size: 0.8125rem; color: var(--text-secondary);">
+            ${total} canceled order${total !== 1 ? 's' : ''} with reason recorded
+        </div>
+        <div style="display: grid; gap: 0.75rem;">
+            ${sortedReasons.map(([reason, count], index) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                const color = colors[index % colors.length];
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${reason}</span>
+                            <span style="color: var(--text-secondary);">${count} (${percentage}%)</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${percentage}%; background: ${color}; transition: width 0.3s;"></div>
                         </div>
                     </div>
                 `;
@@ -1136,6 +1224,8 @@ window.loadOrders = loadOrders;
 window.filterOrders = filterOrders;
 window.viewOrder = viewOrder;
 window.updateOrderStatus = updateOrderStatus;
+window.promptCancelReason = promptCancelReason;
+window.cancelOrderWithReason = cancelOrderWithReason;
 window.confirmDeleteOrder = confirmDeleteOrder;
 window.deleteOrder = deleteOrder;
 window.closeModal = closeModal;
