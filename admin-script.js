@@ -306,7 +306,7 @@ function updateStats() {
     const totalOrders = allOrders.length;
     const pendingOrders = allOrders.filter(o => o.status === 'pending').length;
     const completedOrders = allOrders.filter(o => o.status === 'completed').length;
-    const totalRevenue = allOrders.reduce((sum, o) => sum + (o.payment?.total || 0), 0);
+    const totalRevenue = allOrders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (parseFloat(o.payment?.total) || 0), 0);
 
     const totalEl = document.getElementById('totalOrders');
     const pendingEl = document.getElementById('pendingOrders');
@@ -658,12 +658,12 @@ function generateRevenueChart() {
     const container = document.getElementById('revenueChart');
     if (!container) return;
 
-    // Group orders by date
+    // Group completed orders by date
     const revenueByDate = {};
-    allOrders.forEach(order => {
+    allOrders.filter(o => o.status === 'completed').forEach(order => {
         if (order.timestamp && order.payment?.total) {
             const date = formatDate(order.timestamp);
-            revenueByDate[date] = (revenueByDate[date] || 0) + order.payment.total;
+            revenueByDate[date] = (revenueByDate[date] || 0) + parseFloat(order.payment.total);
         }
     });
 
