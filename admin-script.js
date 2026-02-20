@@ -557,11 +557,16 @@ function closeModal() {
 
 // Generate analytics
 function generateAnalytics() {
+    generateKeyMetrics();
+    generateStatusBreakdownChart();
     generateCountryChart();
+    generateCompletedByCountryChart();
+    generateCanceledByCountryChart();
     generatePackageChart();
-    generatePaymentChart();
-    generateRevenueChart();
     generateCancelReasonsChart();
+    generatePaymentChart();
+    generateRevenueByCountryChart();
+    generateRevenueChart();
 }
 
 // Generate country distribution chart
@@ -804,6 +809,212 @@ function generateCancelReasonsChart() {
     `;
 
     container.innerHTML = html;
+}
+
+// Generate key business metrics strip
+function generateKeyMetrics() {
+    const container = document.getElementById('keyMetrics');
+    if (!container) return;
+
+    const total = allOrders.length;
+    const completed = allOrders.filter(o => o.status === 'completed').length;
+    const canceled = allOrders.filter(o => o.status === 'canceled').length;
+    const pending = allOrders.filter(o => o.status === 'pending').length;
+    const totalRevenue = allOrders
+        .filter(o => o.status === 'completed')
+        .reduce((sum, o) => sum + (parseFloat(o.payment?.total) || 0), 0);
+
+    const conversionRate = (completed + canceled) > 0
+        ? ((completed / (completed + canceled)) * 100).toFixed(1)
+        : '0.0';
+    const cancellationRate = total > 0
+        ? ((canceled / total) * 100).toFixed(1)
+        : '0.0';
+    const avgOrderValue = completed > 0
+        ? (totalRevenue / completed).toFixed(2)
+        : '0.00';
+
+    const countryCompleted = {};
+    allOrders.filter(o => o.status === 'completed').forEach(o => {
+        const c = o.shipping?.address?.country || 'Unknown';
+        countryCompleted[c] = (countryCompleted[c] || 0) + 1;
+    });
+    const bestCountry = Object.entries(countryCompleted).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+    const metrics = [
+        { label: 'Conversion Rate', value: `${conversionRate}%`, color: 'var(--success)', desc: 'completed vs closed' },
+        { label: 'Avg Order Value', value: `€${avgOrderValue}`, color: 'var(--primary)', desc: 'per completed order' },
+        { label: 'Cancellation Rate', value: `${cancellationRate}%`, color: 'var(--danger)', desc: 'of all orders' },
+        { label: 'Best Market', value: bestCountry, color: '#8b5cf6', desc: 'most completions' },
+        { label: 'Pending', value: pending, color: 'var(--warning)', desc: 'awaiting action' },
+    ];
+
+    container.innerHTML = metrics.map(m => `
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem;">
+            <div style="font-size: 0.6875rem; color: var(--text-secondary); margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${m.label}</div>
+            <div style="font-size: 1.375rem; font-weight: 700; color: ${m.color}; line-height: 1.2; word-break: break-word;">${m.value}</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${m.desc}</div>
+        </div>
+    `).join('');
+}
+
+// Generate order status breakdown chart
+function generateStatusBreakdownChart() {
+    const container = document.getElementById('statusBreakdownChart');
+    if (!container) return;
+
+    const total = allOrders.length;
+    if (total === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No data available</p>';
+        return;
+    }
+
+    const statuses = [
+        { label: 'Completed', count: allOrders.filter(o => o.status === 'completed').length, color: 'var(--success)' },
+        { label: 'Pending',   count: allOrders.filter(o => o.status === 'pending').length,   color: 'var(--warning)' },
+        { label: 'Canceled',  count: allOrders.filter(o => o.status === 'canceled').length,  color: 'var(--danger)' },
+    ];
+
+    container.innerHTML = `
+        <div style="display: grid; gap: 0.75rem; margin-bottom: 1.25rem;">
+            ${statuses.map(s => {
+                const pct = ((s.count / total) * 100).toFixed(1);
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${s.label}</span>
+                            <span style="color: var(--text-secondary);">${s.count} (${pct}%)</span>
+                        </div>
+                        <div style="height: 10px; background: var(--border); border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: ${pct}%; background: ${s.color}; transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            ${statuses.map(s => `
+                <div style="text-align: center;">
+                    <div style="font-size: 1.75rem; font-weight: 700; color: ${s.color};">${s.count}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">${s.label}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Generate completed orders by country chart
+function generateCompletedByCountryChart() {
+    const container = document.getElementById('completedByCountryChart');
+    if (!container) return;
+
+    const countryData = {};
+    allOrders.filter(o => o.status === 'completed').forEach(order => {
+        const country = order.shipping?.address?.country || 'Unknown';
+        countryData[country] = (countryData[country] || 0) + 1;
+    });
+
+    const sorted = Object.entries(countryData).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (sorted.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No completed orders yet</p>';
+        return;
+    }
+
+    const max = sorted[0][1];
+    container.innerHTML = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sorted.map(([country, count]) => {
+                const pct = (count / max) * 100;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${country}</span>
+                            <span style="color: var(--text-secondary);">${count} orders</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${pct}%; background: var(--success); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+// Generate canceled orders by country chart
+function generateCanceledByCountryChart() {
+    const container = document.getElementById('canceledByCountryChart');
+    if (!container) return;
+
+    const countryData = {};
+    allOrders.filter(o => o.status === 'canceled').forEach(order => {
+        const country = order.shipping?.address?.country || 'Unknown';
+        countryData[country] = (countryData[country] || 0) + 1;
+    });
+
+    const sorted = Object.entries(countryData).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (sorted.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No canceled orders yet</p>';
+        return;
+    }
+
+    const max = sorted[0][1];
+    container.innerHTML = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sorted.map(([country, count]) => {
+                const pct = (count / max) * 100;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${country}</span>
+                            <span style="color: var(--text-secondary);">${count} orders</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${pct}%; background: var(--danger); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+// Generate revenue by country chart
+function generateRevenueByCountryChart() {
+    const container = document.getElementById('revenueByCountryChart');
+    if (!container) return;
+
+    const countryRevenue = {};
+    allOrders.filter(o => o.status === 'completed').forEach(order => {
+        const country = order.shipping?.address?.country || 'Unknown';
+        countryRevenue[country] = (countryRevenue[country] || 0) + (parseFloat(order.payment?.total) || 0);
+    });
+
+    const sorted = Object.entries(countryRevenue).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    if (sorted.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No revenue data yet</p>';
+        return;
+    }
+
+    const max = sorted[0][1];
+    container.innerHTML = `
+        <div style="display: grid; gap: 0.75rem;">
+            ${sorted.map(([country, revenue]) => {
+                const pct = (revenue / max) * 100;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem;">
+                            <span style="font-weight: 500;">${country}</span>
+                            <span style="color: var(--primary); font-weight: 600;">€${revenue.toFixed(2)}</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${pct}%; background: linear-gradient(90deg, var(--primary), #8b5cf6); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
 }
 
 // Date formatting functions
