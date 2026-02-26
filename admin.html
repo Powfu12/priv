@@ -194,12 +194,33 @@
             <div id="analyticsTab" class="tab-content">
                 <h2 class="tab-title">Analytics & Insights</h2>
 
+                <!-- Key Business Metrics -->
+                <div id="keyMetrics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
+
                 <!-- Analytics Grid -->
                 <div class="analytics-grid">
-                    <!-- Country Distribution -->
+                    <!-- Order Status Breakdown -->
                     <div class="analytics-card">
-                        <h3 class="card-title">Orders by Country</h3>
+                        <h3 class="card-title">Order Status Breakdown</h3>
+                        <div id="statusBreakdownChart" class="chart-container"></div>
+                    </div>
+
+                    <!-- All Orders by Country -->
+                    <div class="analytics-card">
+                        <h3 class="card-title">All Orders by Country</h3>
                         <div id="countryChart" class="chart-container"></div>
+                    </div>
+
+                    <!-- Completed Orders by Country -->
+                    <div class="analytics-card">
+                        <h3 class="card-title">Completed by Country</h3>
+                        <div id="completedByCountryChart" class="chart-container"></div>
+                    </div>
+
+                    <!-- Canceled Orders by Country -->
+                    <div class="analytics-card">
+                        <h3 class="card-title">Canceled by Country</h3>
+                        <div id="canceledByCountryChart" class="chart-container"></div>
                     </div>
 
                     <!-- Package Distribution -->
@@ -208,10 +229,22 @@
                         <div id="packageChart" class="chart-container"></div>
                     </div>
 
+                    <!-- Cancellation Reasons -->
+                    <div class="analytics-card">
+                        <h3 class="card-title">Cancellation Reasons</h3>
+                        <div id="cancelReasonsChart" class="chart-container"></div>
+                    </div>
+
                     <!-- Payment Methods -->
                     <div class="analytics-card">
                         <h3 class="card-title">Payment Methods</h3>
                         <div id="paymentChart" class="chart-container"></div>
+                    </div>
+
+                    <!-- Revenue by Country -->
+                    <div class="analytics-card">
+                        <h3 class="card-title">Revenue by Country</h3>
+                        <div id="revenueByCountryChart" class="chart-container"></div>
                     </div>
 
                     <!-- Revenue Over Time -->
