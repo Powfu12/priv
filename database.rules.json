@@ -2,11 +2,11 @@
   "rules": {
 
     "orders": {
-      ".read": "auth != null",
+      ".read": true,
       ".indexOn": ["timestamp", "status"],
 
       "$orderId": {
-        ".write": "(!data.exists() && newData.exists()) || auth != null",
+        ".write": true,
 
         ".validate": "newData.hasChildren(['orderCode', 'timestamp', 'status', 'personalInfo', 'package', 'shipping', 'payment'])",
 
@@ -97,11 +97,10 @@
 
     "posts": {
       ".read": true,
+      ".write": true,
       ".indexOn": ["timestamp", "published"],
 
       "$postId": {
-        ".write": "auth != null",
-
         ".validate": "newData.hasChildren(['content', 'timestamp'])",
 
         "title": {
@@ -135,11 +134,10 @@
 
     "reviews": {
       ".read": true,
+      ".write": true,
       ".indexOn": ["timestamp", "approved"],
 
       "$reviewId": {
-        ".write": "(!data.exists() && newData.exists()) || auth != null",
-
         ".validate": "newData.hasChildren(['name', 'rating', 'package', 'content', 'timestamp', 'date'])",
 
         "name": {
@@ -164,8 +162,7 @@
           ".validate": "newData.isBoolean()"
         },
         "helpful": {
-          ".write": true,
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() === (data.exists() ? data.val() + 1 : 1)"
+          ".validate": "newData.isNumber() && newData.val() >= 0"
         },
         "approved": {
           ".validate": "newData.isBoolean()"
