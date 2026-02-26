@@ -365,9 +365,9 @@ function viewOrder(orderId) {
                 <div id="cancelReasonPanel" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.5rem;">
                     <div style="font-size: 0.875rem; font-weight: 600; color: var(--danger); margin-bottom: 0.75rem;">Select cancellation reason:</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn\'t Respond')">Didn't Respond</button>
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn&apos;t Respond')">Didn't Respond</button>
                         <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'No Valid TG')">No Valid TG</button>
-                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn\'t Pay')">Didn't Pay</button>
+                        <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Didn&apos;t Pay')">Didn't Pay</button>
                         <button class="action-btn danger" onclick="cancelOrderWithReason('${order.id}', 'Retard')">Retard</button>
                     </div>
                     <button class="action-btn" onclick="document.getElementById('cancelReasonPanel').style.display='none';document.getElementById('orderStatusActions').style.display='flex';" style="margin-top: 0.5rem; width: 100%; justify-content: center;">← Back</button>
